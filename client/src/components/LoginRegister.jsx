@@ -1,8 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
 import APIS from "./../../api/api";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const LoginRegister = () => {
+  const { login } = useAuth(); // Destructure login function from context
+
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -33,9 +36,10 @@ const LoginRegister = () => {
         email: formData.email,
         password: formData.password,
       });
+
       setSuccess("Registration successful! Please log in.");
       setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
-      setIsLogin(true); // switch to login after successful register
+      setIsLogin(true);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     }
@@ -51,8 +55,14 @@ const LoginRegister = () => {
         email: formData.email,
         password: formData.password,
       });
+
       setSuccess("Login successful!");
-      // optionally save token => localStorage.setItem("token", response.data.token)
+
+      // Call login from AuthContext to save user & token globally and persist
+      login(response.data.user, response.data.token);
+
+      // Optionally clear form or redirect user here
+      setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }
