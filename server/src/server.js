@@ -3,6 +3,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes');
+const productRoutes = require('./routes/product.routes');
+
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -12,10 +14,10 @@ const app = express();
 app.use(helmet());
 
 // Enable CORS for frontend
-// app.use(cors({
-//   origin: process.env.CLIENT_URL,
-//   credentials: true,
-// }));
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
+}));
 
 // Rate limiter
 const limiter = rateLimit({
@@ -29,6 +31,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
 
 // mongoose connect
 mongoose.connect(process.env.MONGODB_URI)
