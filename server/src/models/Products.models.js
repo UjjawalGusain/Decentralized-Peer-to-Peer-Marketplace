@@ -28,6 +28,8 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
-productSchema.index({ title: 'text', description: 'text' });
+productSchema.index({ title: 'text', description: 'text'});
+productSchema.index({ 'location.coordinates': '2dsphere' });
+
 
 module.exports = mongoose.model('Product', productSchema);

@@ -19,5 +19,8 @@
   "description": "",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "react-range": "^1.10.0"
   }
 }

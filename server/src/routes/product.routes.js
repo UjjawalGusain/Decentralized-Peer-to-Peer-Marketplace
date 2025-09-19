@@ -5,5 +5,7 @@ const authMiddleware = require('./../middlewares/auth.middlewares');
 
 router.post('/', authMiddleware, productController.createProduct);
 router.get('/', productController.getProducts);
+router.get('/top-category', productController.getCategoryProducts);
+
 
 module.exports = router;
