@@ -1,6 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import Button from "./Button";
+import { Link, NavLink } from "react-router-dom";
+import Button from "./ProductPage/Button";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Header = ({ search, setSearch }) => {
@@ -22,7 +21,7 @@ const Header = ({ search, setSearch }) => {
         <div className="flex justify-between items-center py-1">
           <div className="flex items-center justify-around w-full">
             <div className="text-2xl font-bold text-blue-600 w-fit h-fit">
-              <img src="logo_text.png" alt="Logo" width="80px" height="80px" />
+              <img src="/logo_text.png" alt="Logo" width="80px" height="80px" />
             </div>
 
             <div className="w-full max-w-sm min-w-[200px]">
@@ -52,15 +51,42 @@ const Header = ({ search, setSearch }) => {
             </div>
 
             <nav className="hidden md:flex gap-6 text-sm text-gray-600">
-            <Link to="/" className="hover:text-blue-600">
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  "hover:text-slate-800" +
+                  (isActive ? " text-slate-800 font-semibold underline" : "")
+                }
+              >
                 Home
-              </Link>
-              <Link to="/browse" className="hover:text-blue-600">
+              </NavLink>
+              <NavLink
+                to="/browse"
+                className={({ isActive }) =>
+                  "hover:text-slate-800" +
+                  (isActive ? " text-slate-800 font-semibold underline" : "")
+                }
+              >
                 Browse
-              </Link>
-              <Link to="/aboutus" className="hover:text-blue-600">
+              </NavLink>
+              <NavLink
+                to="/sell"
+                className={({ isActive }) =>
+                  "hover:text-slate-800" +
+                  (isActive ? " text-slate-800 font-semibold underline" : "")
+                }
+              >
+                Sell
+              </NavLink>
+              <NavLink
+                to="/aboutus"
+                className={({ isActive }) =>
+                  "hover:text-slate-800" +
+                  (isActive ? " text-slate-800 font-semibold underline" : "")
+                }
+              >
                 About Us
-              </Link>
+              </NavLink>
             </nav>
           </div>
 

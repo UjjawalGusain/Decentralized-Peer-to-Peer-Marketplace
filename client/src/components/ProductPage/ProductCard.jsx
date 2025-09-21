@@ -1,7 +1,14 @@
-import React from "react";
+import React, { use } from "react";
 import Button from "./Button";
+import { useNavigate } from "react-router-dom";
 
-const ProductCard = ({ product, addToCart }) => (
+const ProductCard = ({ product, addToCart }) => {
+  const navigate = useNavigate();
+  const handleBuy = () => {
+    navigate(`/browse/${product._id || product.id}`);
+  };
+
+  return (
   <div className="bg-white rounded-lg p-4 shadow-sm">
     <div className="relative">
       {product.images && product.images.length > 0 && (
@@ -24,10 +31,10 @@ const ProductCard = ({ product, addToCart }) => (
       </p>
 
       <div className="mt-4 flex gap-2">
-        <Button label={"Buy"} padding={"9"} />
+        <Button label={"Buy"} padding={"9"} onSubmit={handleBuy}/>
       </div>
     </div>
   </div>
-);
+)};
 
 export default ProductCard;

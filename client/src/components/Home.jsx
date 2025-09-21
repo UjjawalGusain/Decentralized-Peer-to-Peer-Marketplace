@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import APIS from "../../api/api";
-import Header from "./ProductPage/Header";
+import Header from "./Header";
 import Hero from "./ProductPage/Hero";
 import CategoryGrid from "./ProductPage/CategoryGrid";
 import CartSummary from "./ProductPage/CartSummary";
 import Footer from "./ProductPage/Footer";
+import TalkingDuck from "./ProductPage/TalkingDuck";
 const Home = () => {
   const [category, setCategory] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
 
   // Fetch products
   const fetchCategoryProducts = async () => {
@@ -54,18 +56,7 @@ const Home = () => {
         </div>
 
       </main>
-      <div className="fixed bottom-[-20px] right-0 m-4 w-56 h-80 pointer-events-none">
-        <div className="relative w-full h-full">
-          <div className="absolute top-0 left-0 text-black bg-opacity-50 rounded px-2 py-1 select-none pointer-events-auto">
-            Hey guys! This is me Bill
-          </div>
-          <img
-            src="./talking_ducky.png"
-            alt="Decoration"
-            className="w-full h-full object-contain"
-          />
-        </div>
-      </div>
+      <TalkingDuck/>
     </div>
   );
 };
