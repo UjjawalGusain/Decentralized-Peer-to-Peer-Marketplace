@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes');
 const productRoutes = require('./routes/product.routes');
-
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -42,7 +41,6 @@ mongoose.connect(process.env.MONGODB_URI)
   console.error('MongoDB connection error:', err);
   process.exit(1); // Optional: stop app if DB connection fails
 });
-
 
 // Global error handler
 app.use((err, req, res, next) => {
