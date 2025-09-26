@@ -2,33 +2,6 @@ const Payment = require('./../models/Payments.model');
 
 class PaymentController {
 
-  async createPayment(req, res) {
-    try {
-      const { razorpayOrderId, amount, currency, userId, productId } = req.body;
-
-      if (!razorpayOrderId || !amount) {
-        return res.status(400).json({ error: 'Order ID and amount are required' });
-      }
-
-      const payment = new Payment({
-        razorpayOrderId,
-        amount,
-        currency: currency || 'INR',
-        userId,
-        productId,
-        status: 'created',
-      });
-
-      await payment.save();
-
-      res.status(201).json(payment);
-    } catch (err) {
-      console.error('Error creating payment:', err);
-      res.status(500).json({ error: 'Failed to create payment' });
-    }
-  }
-
-
   // Update payment after capture or payment id received
   async updatePayment(req, res) {
     try {
