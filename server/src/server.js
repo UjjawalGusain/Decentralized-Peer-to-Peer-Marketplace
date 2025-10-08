@@ -4,6 +4,10 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/auth.routes');
 const productRoutes = require('./routes/product.routes');
+const orderRoutes = require('./routes/order.routes');
+const paymentRoutes = require('./routes/payment.routes');
+const payoutRoutes = require('./routes/payout.routes');
+const userRoutes = require('./routes/user.routes')
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -31,6 +35,10 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/orders', orderRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/payouts', payoutRoutes);
+app.use('/users', userRoutes);
 
 // mongoose connect
 mongoose.connect(process.env.MONGODB_URI)

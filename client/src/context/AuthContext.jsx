@@ -10,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);     // User object
   const [token, setToken] = useState(null);   // JWT token
 
-  // Load token and user info from localStorage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
@@ -21,7 +20,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Save token and user to localStorage on change
   useEffect(() => {
     if (token && user) {
       localStorage.setItem('token', token);
@@ -44,7 +42,6 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
   };
 
-  // Provide auth state and functions to children
   return (
     <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}

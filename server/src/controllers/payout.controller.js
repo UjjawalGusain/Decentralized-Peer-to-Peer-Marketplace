@@ -22,8 +22,12 @@ class PayoutController {
 
       // RazorpayX base URL for payouts API
       const url = 'https://api.razorpay.com/v1/payouts';
+      const auth = {
+        username: process.env.RAZORPAY_KEY_ID,
+        password: process.env.RAZORPAY_KEY_SECRET,
+      };
 
-      const response = await axios.post(url, data, { razorpay });
+      const response = await axios.post(url, data, { auth });
 
       res.json(response.data);
     } catch (error) {
