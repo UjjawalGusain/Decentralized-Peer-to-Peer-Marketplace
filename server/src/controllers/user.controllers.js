@@ -26,26 +26,37 @@ class UserController {
   async updateUser(req, res) {
     try {
       const userId = req.params.id;
+
       if (!mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({ message: 'Invalid user ID' });
       }
 
-      const updates = {};
-      const allowedFields = ['name', 'avatar', 'bio', 'phoneNumber', 'location', 'socialLinks'];
+      const { name, location, roles } = req.body;
 
-      allowedFields.forEach((field) => {
-        if (req.body[field] !== undefined) {
-          updates[`profile.${field}`] = req.body[field];
-        }
-      });
+      const updateFields = {};
 
-      if (Object.keys(updates).length === 0) {
-        return res.status(400).json({ message: 'No valid fields to update' });
+      if (name !== undefined) updateFields['profile.name'] = name;
+
+      if (location) {
+        if (location.coordinates !== undefined)
+          updateFields['profile.location.coordinates'] = location.coordinates;
+        if (location.city !== undefined)
+          updateFields['profile.location.city'] = location.city;
+        if (location.country !== undefined)
+          updateFields['profile.location.country'] = location.country;
+      }
+
+      if (roles !== undefined && Array.isArray(roles)) {
+        updateFields['roles'] = roles;
+      }
+
+      if (Object.keys(updateFields).length === 0) {
+        return res.status(400).json({ message: 'No fields to update' });
       }
 
       const updatedUser = await User.findByIdAndUpdate(
         userId,
-        { $set: updates },
+        { $set: updateFields },
         { new: true, runValidators: true, context: 'query' }
       ).select('-password');
 
@@ -59,6 +70,7 @@ class UserController {
       res.status(500).json({ message: 'Server error' });
     }
   }
+
 }
 
 module.exports = new UserController();

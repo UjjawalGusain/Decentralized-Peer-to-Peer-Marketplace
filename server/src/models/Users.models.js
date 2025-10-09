@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema(
       location: {
         type: { type: String, enum: ['Point'], default: 'Point' },
         coordinates: { type: [Number], default: [0, 0] },
+        city: { type: String, default: "" },
+        country: { type: String, default: "" },
       },
       reputation: {
         score: { type: Number, default: 0 },

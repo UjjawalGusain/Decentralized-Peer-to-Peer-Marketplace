@@ -48,6 +48,7 @@ class AuthController {
           name: user.profile.name,
           avatar: user.profile.avatar,
           roles: user.roles,
+          location: user.location
         },
       });
     } catch (error) {
