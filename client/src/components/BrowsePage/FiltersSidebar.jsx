@@ -129,14 +129,14 @@ const MaxDistanceFilter = ({ maxDistance, setMaxDistance }) => {
 
 // Location input placeholder (you can implement geolocation API)
 const LocationInput = ({ lat, lng, setLat, setLng }) => {
-    console.log("Hello world 1");
+    // console.log("Hello world 1");
   const useMyLocation = () => {
-    console.log("Hello world 2");
+    // console.log("Hello world 2");
     
-    console.log(navigator);
+    // console.log(navigator);
     
     if (navigator.geolocation) {
-        console.log(`Nagivator: ${navigator.geolocation}`);
+        // console.log(`Nagivator: ${navigator.geolocation}`);
         
       navigator.geolocation.getCurrentPosition((pos) => {
         setLat(pos.coords.latitude);

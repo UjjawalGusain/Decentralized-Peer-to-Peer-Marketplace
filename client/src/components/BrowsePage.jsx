@@ -26,7 +26,7 @@ const BrowsePage = ({ search }) => {
       if (search.trim()) params.search = search.trim();
       if (minPrice) params.minPrice = minPrice;
       if (maxPrice) params.maxPrice = maxPrice;
-      console.log(`Max distance: ${maxDistance}`);
+      // console.log(`Max distance: ${maxDistance}`);
       
       if (lat && lng) {
         params.lat = lat;

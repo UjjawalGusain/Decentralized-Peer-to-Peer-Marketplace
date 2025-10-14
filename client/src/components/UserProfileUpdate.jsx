@@ -122,7 +122,7 @@ function UserProfileUpdate() {
         setError(result.message || "Profile update failed.");
       } else {
         alert("Profile updated!");
-        console.log(result);
+        // console.log(result);
         
         refreshUser(result?.user?.id);
         

@@ -21,7 +21,7 @@ const Home = () => {
       if (search.trim()) params.search = search.trim();
 
       const response = await axios.get(`${APIS.PRODUCTS_TOP}`, { params });
-      console.log(response.data.categoryProducts);
+      // console.log(response.data.categoryProducts);
 
       setCategory(response.data.categoryProducts);
     } catch (err) {
