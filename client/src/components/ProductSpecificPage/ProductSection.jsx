@@ -8,6 +8,11 @@ export default function ProductSection({
     setMainImage,
     handleBuy,
 }) {
+
+    const handleMessage = () => {
+        alert("Message still in development. Please wait for new version")
+    }
+
     return (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
             {/* Title and Category */}
@@ -172,7 +177,7 @@ export default function ProductSection({
             <div className="flex gap-4">
                 {/* Changed onSubmit to onClick for Button component */}
                 <Button label={"Buy Now"} onSubmit={handleBuy} />
-                <Button label={"Message Seller"} color={"bg-[#FEC010]"} />
+                <Button label={"Message Seller"} color={"bg-[#FEC010]"} onSubmit={handleMessage} />
             </div>
         </main>
     );

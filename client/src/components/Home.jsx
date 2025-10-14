@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import APIS from "../../api/api";
-import Header from "./Header";
 import Hero from "./ProductPage/Hero";
 import CategoryGrid from "./ProductPage/CategoryGrid";
-import CartSummary from "./ProductPage/CartSummary";
-import Footer from "./ProductPage/Footer";
 import TalkingDuck from "./ProductPage/TalkingDuck";
 const Home = () => {
   const [category, setCategory] = useState([]);
