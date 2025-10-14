@@ -13,19 +13,19 @@ const SectionTitle = ({ children }) => (
 
 function UserProfileUpdate() {
   const { id } = useParams();
-  const { token } = useAuth();
+  const { token, refreshUser } = useAuth();
   const navigate = useNavigate();
 
-  // react-hook-form setup
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       name: "",
+      phone: "",
+      upi: "",
       location: {
         city: "",
         country: "",
@@ -35,11 +35,9 @@ function UserProfileUpdate() {
     },
   });
 
-  // Form values state (for initial values fetch)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch user profile for initial values
   React.useEffect(() => {
     async function fetchProfile() {
       try {
@@ -48,8 +46,9 @@ function UserProfileUpdate() {
         if (!response.ok) throw new Error("Could not fetch profile.");
         const data = await response.json();
 
-        // Populate default values
         setValue("name", data.profile?.name ?? "");
+        setValue("phone", data.profile?.phone ?? "");
+        setValue("upi", data.upi ?? "");
         setValue("location.city", data.profile?.location?.city ?? "");
         setValue("location.country", data.profile?.location?.country ?? "");
         setValue(
@@ -68,7 +67,6 @@ function UserProfileUpdate() {
     fetchProfile();
   }, [id, setValue]);
 
-  // Location helper
   function fillUserLocation() {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported on your browser.");
@@ -85,23 +83,22 @@ function UserProfileUpdate() {
     );
   }
 
-  // Submit handler
   async function onSubmit(data) {
     try {
       setError("");
-      // Parse coordinates
+      // Parse coordinates string to array
       let coordsStr = data.location.coordinates;
       coordsStr = coordsStr.replace(/^\[|\]$/g, "");
       const parts = coordsStr
         .split(",")
         .map((part) => parseFloat(part.trim()));
       const validCoords =
-        parts.length === 2 && parts.every((num) => !isNaN(num))
-          ? parts
-          : [];
+        parts.length === 2 && parts.every((num) => !isNaN(num)) ? parts : [];
 
       const payload = {
         name: data.name,
+        phone: data.phone,
+        upi: data.upi,
         location: {
           city: data.location.city,
           country: data.location.country,
@@ -125,7 +122,12 @@ function UserProfileUpdate() {
         setError(result.message || "Profile update failed.");
       } else {
         alert("Profile updated!");
-        navigate(`/browse/${id}`);
+        console.log(result);
+        
+        refreshUser(result?.user?.id);
+        
+        // await refreshUser(user?.id);
+        navigate(`/users/${result?.user?.id}`);
       }
     } catch (err) {
       setError("Unexpected error. Try again.");
@@ -165,7 +167,7 @@ function UserProfileUpdate() {
           Edit Profile
         </h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Name Section */}
+          {/* Name */}
           <section className="bg-white p-6 rounded-md shadow-sm">
             <SectionTitle>Name</SectionTitle>
             <input
@@ -175,13 +177,33 @@ function UserProfileUpdate() {
               placeholder="Your name"
             />
             {errors.name && (
-              <span className="text-pink-500 text-xs pl-1">
-                Name is required
-              </span>
+              <span className="text-pink-500 text-xs pl-1">Name is required</span>
             )}
           </section>
 
-          {/* Roles Section */}
+          {/* Phone */}
+          <section className="bg-white p-6 rounded-md shadow-sm">
+            <SectionTitle>Phone</SectionTitle>
+            <input
+              {...register("phone")}
+              type="text"
+              className="w-full px-4 py-2 rounded-md border border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition bg-white"
+              placeholder="Enter your phone number"
+            />
+          </section>
+
+          {/* UPI */}
+          <section className="bg-white p-6 rounded-md shadow-sm">
+            <SectionTitle>UPI ID</SectionTitle>
+            <input
+              {...register("upi")}
+              type="text"
+              className="w-full px-4 py-2 rounded-md border border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition bg-white"
+              placeholder="Enter your UPI ID"
+            />
+          </section>
+
+          {/* Role */}
           <section className="bg-white p-6 rounded-md shadow-sm">
             <SectionTitle>Role</SectionTitle>
             <div className="flex gap-6 mt-2">
@@ -202,7 +224,7 @@ function UserProfileUpdate() {
             </div>
           </section>
 
-          {/* Location Section */}
+          {/* Location */}
           <section className="bg-white p-6 rounded-md shadow-sm">
             <SectionTitle>Location</SectionTitle>
             <div className="gap-5 grid grid-cols-1 sm:grid-cols-2">
@@ -234,13 +256,9 @@ function UserProfileUpdate() {
             </button>
           </section>
 
-          {/* Update Button */}
+          {/* Submit */}
           <div className="flex justify-center mt-7">
-            <Button
-              label={"Update Profile"}
-              type="submit"
-              disabled={isSubmitting}
-            />
+            <Button label={"Update Profile"} type="submit" disabled={isSubmitting} />
           </div>
         </form>
       </main>

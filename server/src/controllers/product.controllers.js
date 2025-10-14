@@ -1,3 +1,4 @@
+const User = require('../models/Users.models');
 const Product = require('./../models/Products.models');
 
 class ProductController {
@@ -22,7 +23,7 @@ class ProductController {
         expiryDate,
       } = req.body;
 
-      let parsedAttributes = attributes
+      let parsedAttributes = attributes;
 
       // Required fields check
       if (!title || !description || !category || price === undefined) {
@@ -44,11 +45,11 @@ class ProductController {
       }
 
       if (attributes) {
-        parsedAttributes = JSON.parse(attributes)
+        parsedAttributes = JSON.parse(attributes);
       }
 
-      if(location && location.coordinates) {
-          location.coordinates = JSON.parse(location.coordinates);
+      if (location && location.coordinates) {
+        location.coordinates = JSON.parse(location.coordinates);
       }
 
       // Validate currency if provided
@@ -168,6 +169,43 @@ class ProductController {
       res.json(product);
     } catch (error) {
       console.error('Get product by ID error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async getProductsBySeller(req, res) {
+    try {
+      const sellerId = req.query.sellerId;
+      const status = req.query.status;
+      if (!sellerId.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json({ message: 'Invalid seller ID' });
+      }
+
+      const seller = await User.findById(sellerId).lean();
+
+      console.log(seller);
+      console.log("Found seller");
+      
+      
+
+      if (!seller) {
+        return res.status(404).json({ message: 'Seller not found' });
+      }
+
+      if(!seller.roles.includes("seller")) {
+        return res.status(404).json({ message: 'User not a seller' });
+      }
+
+      const products = await Product.find({
+        sellerId,
+        ...(status ? { status } : {}),
+      }).lean();
+
+      res.json({
+        products
+      });
+    } catch (error) {
+      console.error('Get products by seller error:', error);
       res.status(500).json({ message: 'Server error' });
     }
   }

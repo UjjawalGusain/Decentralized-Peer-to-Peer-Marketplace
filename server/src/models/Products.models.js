@@ -38,7 +38,7 @@ const productSchema = new mongoose.Schema(
     warrantyPeriod: { type: String, default: 'No warranty' },
     status: {
       type: String,
-      enum: ['draft', 'active', 'sold', 'pending', 'inactive'],
+      enum: ['active', 'sold', 'pending', 'inactive'],
       default: 'active',
     },
     location: {

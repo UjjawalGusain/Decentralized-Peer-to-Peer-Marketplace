@@ -18,6 +18,10 @@ function UserProfilePage() {
     const { token } = useAuth();
     const navigate = useNavigate();
 
+    const handleSellerDashboard = () => {
+        navigate("sellerdashboard");
+    }
+
     const handleProfileEdit = () => {
         navigate("update");
     };
@@ -129,6 +133,14 @@ function UserProfilePage() {
                     <Button
                         label={"Edit my profile"}
                         onSubmit={handleProfileEdit}
+                    />
+                )}
+
+                {token && user.roles.includes("seller") && (
+                    <Button
+                        label={"Seller Dashboard"}
+                        color={"bg-[#FEC010]"} 
+                        onSubmit={handleSellerDashboard}
                     />
                 )}
             </main>

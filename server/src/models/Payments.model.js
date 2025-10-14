@@ -2,17 +2,30 @@ const mongoose = require('mongoose');
 
 const paymentSchema = new mongoose.Schema({
   razorpayOrderId: { type: String, required: true, unique: true },
-  razorpayPaymentId: { type: String }, 
+  razorpayPaymentId: { type: String },
   razorpaySignature: { type: String }, // for webhook verification (optional)
   amount: { type: Number, required: true }, // amount in paise
   currency: { type: String, default: 'INR' },
-  status: { 
-    type: String, 
-    enum: ['created', 'authorized', 'captured', 'failed', 'refunded'], 
-    default: 'created' 
+
+  status: {
+    type: String,
+    enum: ['created', 'escrowed', 'released', 'refunded', 'failed', 'cancelled'],
+    default: 'created',
   },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  // buyer
   productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // seller
+
+  // Flag if buyer requested a cancel/refund before payout
+  buyerCancelRequested: { type: Boolean, default: false },
+
+  // Timestamp when funds were held in escrow
+  escrowHeldAt: { type: Date },
+
+  // Timestamp when funds were released to seller
+  fundsReleasedAt: { type: Date },
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date },
 });

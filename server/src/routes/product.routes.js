@@ -18,7 +18,9 @@ router.post(
 
 router.get('/', productController.getProducts);
 router.get('/top-category', productController.getCategoryProducts);
+router.get('/product-by-seller', authMiddleware, productController.getProductsBySeller);
 router.get('/:id', productController.getProductById)
+
 
 
 module.exports = router;

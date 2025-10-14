@@ -10,6 +10,7 @@ import Sell from './components/Sell';
 import ProductSpecificPage from './components/ProductSpecificPage';
 import UserProfilePage from './components/UserProfilePage';
 import UserProfileUpdate from './components/UserProfileUpdate';
+import SellerDashboard from './components/SellerDashboard';
 
 function App() {
   const [search, setSearch] = useState("");
@@ -29,6 +30,7 @@ function App() {
         <Route path="/browse/:id" element={<ProductSpecificPage />} />
         <Route path="/users/:id" element={<UserProfilePage />} />
         <Route path="/users/:id/update" element={<UserProfileUpdate />} />
+        <Route path="/users/:id/sellerdashboard" element={<SellerDashboard />} />
       </Routes>
     </Router>
   )

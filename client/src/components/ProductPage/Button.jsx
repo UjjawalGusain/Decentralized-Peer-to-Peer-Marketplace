@@ -1,6 +1,6 @@
 import React from "react";
 
-const Button = ({ label, onSubmit, type = "button", padding }) => {
+const Button = ({ label, onSubmit, type = "button", padding, color="bg-slate-800" }) => {
   // Map numeric padding or string to Tailwind classes
   const paddingClass =
     {
@@ -20,7 +20,7 @@ const Button = ({ label, onSubmit, type = "button", padding }) => {
     <button
       type={type}
       onClick={onSubmit}
-      className={`rounded-md bg-slate-800 py-2 ${paddingClass} border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2`}
+      className={`rounded-md ${color} py-2 ${paddingClass} border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2`}
     >
       {label}
     </button>

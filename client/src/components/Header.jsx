@@ -39,9 +39,8 @@ const Header = ({ search, setSearch }) => {
         }
     };
 
-    const avatarSrc = user?.avatar || "/avatar.jpg";
-    console.log("User avatar:", user?.avatar);
-    console.log(user);
+    const avatarSrc = user?.profile?.avatar || "/avatar.jpg";
+
 
     return (
         <header className="bg-[#F9FAFB] shadow py-2">

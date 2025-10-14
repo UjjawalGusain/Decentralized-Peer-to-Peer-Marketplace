@@ -20,7 +20,7 @@ class AuthController {
 
       let avatarUrl = '';
       if (req.file && req.file.secure_url) {
-        avatarUrl = req.file.secure_url; // or adjust according to your middleware
+        avatarUrl = req.file.secure_url; 
       }
 
       const user = new User({
@@ -28,7 +28,7 @@ class AuthController {
         password: hashedPassword,
         profile: {
           name,
-          avatar: avatarUrl, // Save avatar URL in user profile
+          avatar: avatarUrl,
         },
         roles: ['buyer'],
       });
@@ -86,8 +86,7 @@ class AuthController {
         user: {
           id: user._id,
           email: user.email,
-          name: user.profile.name,
-          avatar: user.profile.avatar,
+          profile: user.profile,
           roles: user.roles,
         },
       });
