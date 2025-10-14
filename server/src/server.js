@@ -16,7 +16,7 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-app.set('trust proxy', 1);
+app.set('trust proxy', 1); // set trust proxy
 
 
 // Enable CORS for frontend
