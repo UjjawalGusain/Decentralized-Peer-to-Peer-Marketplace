@@ -63,9 +63,10 @@ class OrderController {
       const orders = await Payment.find({
         sellerId,
         status: 'escrowed',
-        buyerCancelRequest: 'false',
+        buyerCancelRequested: false,
       }).lean();
-
+      console.log(orders);
+      
       res.json({
         orders,
       });

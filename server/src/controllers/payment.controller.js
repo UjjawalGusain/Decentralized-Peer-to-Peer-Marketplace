@@ -103,19 +103,19 @@ class PaymentController {
   }
 
   // List payments with pagination
-  async listPayments(req, res) {
-    try {
-      const limit = parseInt(req.query.limit) || 50;
-      const page = parseInt(req.query.page) || 1;
-      const skip = (page - 1) * limit;
+  // async listPayments(req, res) {
+  //   try {
+  //     const limit = parseInt(req.query.limit) || 50;
+  //     const page = parseInt(req.query.page) || 1;
+  //     const skip = (page - 1) * limit;
 
-      const payments = await Payment.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
-      res.json(payments);
-    } catch (err) {
-      console.error('Error listing payments:', err);
-      res.status(500).json({ error: 'Failed to list payments' });
-    }
-  }
+  //     const payments = await Payment.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+  //     res.json(payments);
+  //   } catch (err) {
+  //     console.error('Error listing payments:', err);
+  //     res.status(500).json({ error: 'Failed to list payments' });
+  //   }
+  // }
 }
 
 module.exports = new PaymentController();

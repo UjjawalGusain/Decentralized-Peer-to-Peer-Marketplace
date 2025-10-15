@@ -9,7 +9,7 @@ const paymentSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['created', 'escrowed', 'released', 'refunded', 'failed', 'cancelled'],
+    enum: ['created', 'escrowed', 'released', 'refunded', 'failed', 'cancelled', 'shipped'],
     default: 'created',
   },
 
