@@ -34,6 +34,7 @@ class OrderController {
         buyerId,
         sellerId,
         productId,
+        userId: buyerId,
       });
       await payment.save();
 

@@ -54,6 +54,11 @@ function ProductSpecificPage() {
             });
             const { order } = response.data;
 
+            console.log("Response");
+            console.log(response);
+            
+            
+
             // Step 2: Load Razorpay Script
             const razorpayLoaded = await loadRazorpayScript();
             if (!razorpayLoaded) return alert("Failed to load Razorpay SDK.");
@@ -83,14 +88,10 @@ function ProductSpecificPage() {
                         );
                         if (verificationResponse.data.success) {
                             alert("Payment verified successfully.");
-                            await axios.put(
-                                APIS.PAYMENTS_UPDATE,
+                            await axios.patch(
+                                APIS.PAYMENTS_UPDATE_BY_BUYER,
                                 {
                                     razorpayOrderId: order.id,
-                                    razorpayPaymentId:
-                                        response.razorpay_payment_id,
-                                    razorpaySignature:
-                                        response.razorpay_signature,
                                     status: "escrowed",
                                 },
                                 {

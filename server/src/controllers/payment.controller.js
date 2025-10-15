@@ -1,15 +1,24 @@
 const crypto = require('crypto');
 const Payment = require('./../models/Payments.model');
+const User = require('./../models/Users.models');
 
 class PaymentController {
   async addPayment(req, res) {
     try {
-      const { razorpayOrderId, amount, currency = 'INR', userId, productId, sellerId } = req.body;
+      const {
+        razorpayOrderId,
+        amount,
+        currency = 'INR',
+        userId,
+        productId,
+        sellerId,
+      } = req.body;
       if (!razorpayOrderId || !amount || !userId || !productId || !sellerId) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
       const existing = await Payment.findOne({ razorpayOrderId });
-      if (existing) return res.status(409).json({ error: 'Payment already exists' });
+      if (existing)
+        return res.status(409).json({ error: 'Payment already exists' });
 
       const payment = new Payment({
         razorpayOrderId,
@@ -33,14 +42,15 @@ class PaymentController {
   // Verify payment signature for frontend/webhook validation
   verifyPayment(req, res) {
     try {
-      const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
+      const { razorpayOrderId, razorpayPaymentId, razorpaySignature } =
+        req.body;
       if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
       const generatedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-        .update(razorpayOrderId + "|" + razorpayPaymentId)
+        .update(razorpayOrderId + '|' + razorpayPaymentId)
         .digest('hex');
 
       if (generatedSignature === razorpaySignature) {
@@ -55,34 +65,106 @@ class PaymentController {
   }
 
   // Update payment status and fields (e.g. on payment/cancellation)
-  async updatePayment(req, res) {
+  async updatePaymentBySeller(req, res) {
     try {
-      const { razorpayOrderId, razorpayPaymentId, razorpaySignature, status, buyerCancelRequested } = req.body;
-      if (!razorpayOrderId) return res.status(400).json({ error: 'Order ID is required' });
+      const { razorpayOrderId, status } = req.body;
+      const userId = req.user.userId;
 
-      const payment = await Payment.findOne({ razorpayOrderId });
-      if (!payment) return res.status(404).json({ error: 'Payment not found' });
-
-      if (razorpayPaymentId) payment.razorpayPaymentId = razorpayPaymentId;
-      if (razorpaySignature) payment.razorpaySignature = razorpaySignature;
-      if (typeof buyerCancelRequested === 'boolean') payment.buyerCancelRequested = buyerCancelRequested;
-
-      const validStatuses = ['created', 'authorized', 'captured', 'escrowed', 'released', 'refunded', 'failed', 'cancelled'];
-      if (status) {
-        if (!validStatuses.includes(status)) return res.status(400).json({ error: 'Invalid status value' });
-        payment.status = status;
-
-        if (status === 'released') payment.fundsReleasedAt = new Date();
-        if (status === 'escrowed' && !payment.escrowHeldAt) payment.escrowHeldAt = new Date();
+      if (!razorpayOrderId || !status) {
+        return res.status(400).json({ message: 'Missing required fields' });
       }
 
+      const seller = await User.findById(userId).lean();
+      if (!seller) {
+        return res.status(404).json({ message: 'Seller not found' });
+      }
+
+      const payment = await Payment.findOne({ razorpayOrderId });
+      if (!payment) {
+        return res.status(404).json({ message: 'Payment not found' });
+      }
+
+      if (payment.sellerId.toString() !== userId) {
+        return res
+          .status(403)
+          .json({ message: 'Unauthorized to update this payment' });
+      }
+
+      const validStatuses = [
+        'created',
+        'escrowed',
+        'shipped',
+        'released',
+        'refunded',
+        'failed',
+        'cancelled',
+      ];
+
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status value' });
+      }
+
+      payment.status = status;
       await payment.save();
-      res.json(payment);
-      console.log("Payment updated");
-      
+
+      return res.json({
+        message: 'Payment updated successfully by seller',
+        payment,
+      });
     } catch (err) {
-      console.error('Error updating payment:', err);
-      res.status(500).json({ error: 'Failed to update payment' });
+      console.error('Error updating payment by seller:', err);
+      return res.status(500).json({ error: 'Failed to update payment' });
+    }
+  }
+
+  async updatePaymentByBuyer(req, res) {
+    try {
+      const { razorpayOrderId, status } = req.body;
+      const userId = req.user.userId;
+
+      if (!razorpayOrderId || !status) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      const buyer = await User.findById(userId).lean();
+      if (!buyer) {
+        return res.status(404).json({ message: 'Buyer not found' });
+      }
+
+      const payment = await Payment.findOne({ razorpayOrderId });
+      if (!payment) {
+        return res.status(404).json({ message: 'Payment not found' });
+      } 
+
+      console.log("Payment user id: ", payment.userId);
+      console.log("user id: ", userId);
+      
+
+      if (payment.userId.toString() !== userId) {
+        return res
+          .status(403)
+          .json({ message: 'Unauthorized to update this payment' });
+      }
+
+      // Limit allowed statuses for buyer update, usually only initial escrow update
+      const validStatuses = ['escrowed', 'cancelled'];
+
+      if (!validStatuses.includes(status)) {
+        return res
+          .status(400)
+          .json({ message: 'Invalid status value for buyer update' });
+      }
+
+      payment.status = status;
+      await payment.save();
+
+      return res.json({
+        message: 'Payment updated successfully by buyer',
+        payment,
+      });
+    } catch (err) {
+      console.error('Error updating payment by buyer:', err);
+      return res.status(500).json({ error: 'Failed to update payment' });
     }
   }
 
@@ -90,7 +172,8 @@ class PaymentController {
   async getPaymentByOrderId(req, res) {
     try {
       const { razorpayOrderId } = req.params;
-      if (!razorpayOrderId) return res.status(400).json({ error: 'Order ID is required' });
+      if (!razorpayOrderId)
+        return res.status(400).json({ error: 'Order ID is required' });
 
       const payment = await Payment.findOne({ razorpayOrderId });
       if (!payment) return res.status(404).json({ error: 'Payment not found' });

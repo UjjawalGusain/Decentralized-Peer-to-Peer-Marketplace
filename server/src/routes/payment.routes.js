@@ -5,7 +5,8 @@ const authMiddleware = require('../middlewares/auth.middleware');
 
 router.post('/add', authMiddleware, paymentController.addPayment);
 router.post('/verify', authMiddleware, paymentController.verifyPayment);
-router.put('/update', authMiddleware, paymentController.updatePayment);
+router.patch('/update-by-buyer', authMiddleware, paymentController.updatePaymentByBuyer);
+router.patch('/update-by-seller', authMiddleware, paymentController.updatePaymentBySeller);
 router.get('/:razorpayOrderId', authMiddleware, paymentController.getPaymentByOrderId);
 // router.get('/', paymentController.listPayments);  
 

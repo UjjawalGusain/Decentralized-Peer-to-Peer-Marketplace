@@ -13,7 +13,8 @@ const APIS = {
 
     PAYMENTS_ADD: `${BASE_URL}/payments/add`,
     PAYMENTS_VERIFY: `${BASE_URL}/payments/verify`,
-    PAYMENTS_UPDATE: `${BASE_URL}/payments/update`,
+    PAYMENTS_UPDATE_BY_BUYER: `${BASE_URL}/payments/update-by-buyer`,
+    PAYMENTS_UPDATE_BY_SELLER: `${BASE_URL}/payments/update-by-seller`,
     PAYMENTS_GET: `${BASE_URL}/payments`, // Expect /payments/:razorpayOrderId appended when used
     PAYMENTS_LIST: `${BASE_URL}/payments`,
 
