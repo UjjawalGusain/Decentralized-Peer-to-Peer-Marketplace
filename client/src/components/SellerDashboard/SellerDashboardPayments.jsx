@@ -88,7 +88,7 @@ function SellerDashboardPayments() {
                     Recent Payments
                 </h2>
                 <p className="text-gray-600 mt-1">
-                    Track your latest transactions and payment statuses.
+                    Track latest orders for you.
                 </p>
             </div>
 
@@ -123,6 +123,15 @@ function SellerDashboardPayments() {
                                         ? order.status.charAt(0).toUpperCase() +
                                           order.status.slice(1)
                                         : "Unknown"}
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-[#FEC010] border border-yellow-200">
+                                    {new Date(
+                                        order.createdAt
+                                    ).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                    })}
                                 </span>
                             </div>
 

@@ -30,7 +30,6 @@ const PriceRange = ({ minPrice, maxPrice, setMinPrice, setMaxPrice }) => {
           setMaxPrice(vals[1]);
         }}
         renderTrack={({ props, children }) => {
-          // Extract key from props and pass explicitly
           const { key, ...restProps } = props;
           return (
             <div

@@ -21,6 +21,7 @@ const APIS = {
     // Payout APIs
     PAYOUTS_CREATE: `${BASE_URL}/payouts/create`,
     PAYOUTS_STATUS: `${BASE_URL}/payouts/status`,
+    PAYOUTS_GET: `${BASE_URL}/payouts`, // expect sellerId and status to be appended
 
     PRODUCT_BY_SELLER: `${BASE_URL}/api/products/product-by-seller`, // Expect /:sellerId&:status appended
     ORDER_BY_SELLER: `${BASE_URL}/orders/orders-by-seller`, // Expect /:sellerId appended

@@ -1,4 +1,6 @@
 const Payout = require('./../models/Payouts.model');
+const Payment = require('./../models/Payments.model')
+const User = require('./../models/Users.models')
 
 class PayoutController {
   // Simulate payout creation locally without Razorpay API call
@@ -29,6 +31,8 @@ class PayoutController {
         return res.status(404).json({ error: 'Payment not found' });
       }
 
+      const productId = payment.productId;
+
       if (!sellerId) {
         return res.status(400).json({ error: 'Seller Id is required' });
       }
@@ -56,6 +60,7 @@ class PayoutController {
         mode,
         status: payoutStatus,
         failureReason,
+        productId
       });
 
       await payout.save();
@@ -65,6 +70,7 @@ class PayoutController {
         id: razorpayPayoutId,
         paymentId,
         sellerId,
+        productId,
         amount,
         currency,
         mode,

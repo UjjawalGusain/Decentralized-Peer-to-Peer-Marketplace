@@ -1,31 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SellForm from "./Sell/SellForm";
 import Button from "./ProductPage/Button";
 import { useAuth } from "../context/AuthContext";
 import ErrorPage from "./ErrorPages/ErrorPage";
+import { useForm } from "react-hook-form";
 
 function Sell() {
     const { user } = useAuth();
 
-
-    const fillUserLocation = () => {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported on your browser.");
-            return;
-        }
-        const options = { enableHighAccuracy: true };
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const coords = [
-                    position.coords.longitude,
-                    position.coords.latitude,
-                ];
-                setValue("location.coordinates", JSON.stringify(coords));
-            },
-            () => alert("Unable to retrieve your location."),
-            options
-        );
-    };
 
     if (!user) return <div>User Does Not Exist</div>;
 
@@ -38,12 +20,10 @@ function Sell() {
                     <h1 className="text-4xl font-bold text-center text-[#FEC010] mb-8 font-inter">
                         Let's post an ad for you!
                     </h1>
-                    <SellForm fillUserLocation={fillUserLocation} />
+                    <SellForm />
                 </main>
             </div>
-        )
-
-        
+        )        
     );
 }
 

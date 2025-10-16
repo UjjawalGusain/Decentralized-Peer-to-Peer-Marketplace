@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import APIS from "../../../api/api.js";
-import { useAuth } from "./../../context/AuthContext.jsx"
+import { useAuth } from "./../../context/AuthContext.jsx";
 import AttributesInput from "./SellAttributesInput";
 
-export default function SellForm({ fillUserLocation }) {
+export default function SellForm() {
     const { token } = useAuth();
     const [previewImages, setPreviewImages] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -26,6 +26,25 @@ export default function SellForm({ fillUserLocation }) {
             expiryDate: "",
         },
     });
+
+    const fillUserLocation = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported on your browser.");
+            return;
+        }
+        const options = { enableHighAccuracy: true };
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const coords = [
+                    position.coords.longitude,
+                    position.coords.latitude,
+                ];
+                setValue("location.coordinates", JSON.stringify(coords));
+            },
+            () => alert("Unable to retrieve your location."),
+            options
+        );
+    };
 
     // Handle image preview and file selection
     const handleImagePreview = (e) => {
@@ -386,6 +405,7 @@ export default function SellForm({ fillUserLocation }) {
                 <button
                     type="submit"
                     className="px-10 py-3 bg-[#FEC010] rounded-full shadow text-gray-900 font-bold text-lg transition-transform transform hover:bg-yellow-400 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                    onClick={fillUserLocation}
                 >
                     Post My Ad!
                 </button>

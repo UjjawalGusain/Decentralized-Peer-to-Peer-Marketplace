@@ -7,6 +7,11 @@ const payoutSchema = new mongoose.Schema({
     ref: 'Payment',
     required: true,
   },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true,
+  },
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
