@@ -8,6 +8,5 @@ router.post('/verify', authMiddleware, paymentController.verifyPayment);
 router.patch('/update-by-buyer', authMiddleware, paymentController.updatePaymentByBuyer);
 router.patch('/update-by-seller', authMiddleware, paymentController.updatePaymentBySeller);
 router.get('/:razorpayOrderId', authMiddleware, paymentController.getPaymentByOrderId);
-// router.get('/', paymentController.listPayments);  
 
 module.exports = router;

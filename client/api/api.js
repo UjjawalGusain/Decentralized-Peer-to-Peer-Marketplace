@@ -25,6 +25,7 @@ const APIS = {
 
     PRODUCT_BY_SELLER: `${BASE_URL}/api/products/product-by-seller`, // Expect /:sellerId&:status appended
     ORDER_BY_SELLER: `${BASE_URL}/orders/orders-by-seller`, // Expect /:sellerId appended
+    ORDER_BY_BUYER: `${BASE_URL}/orders/orders-by-buyer`, 
 };
 
 export default APIS;

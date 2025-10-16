@@ -11,6 +11,7 @@ import ProductSpecificPage from './components/ProductSpecificPage';
 import UserProfilePage from './components/UserProfilePage';
 import UserProfileUpdate from './components/UserProfileUpdate';
 import SellerDashboard from './components/SellerDashboard';
+import BuyerDashboard from './components/BuyerDashboard';
 
 function App() {
   const [search, setSearch] = useState("");
@@ -31,6 +32,7 @@ function App() {
         <Route path="/users/:id" element={<UserProfilePage />} />
         <Route path="/users/:id/update" element={<UserProfileUpdate />} />
         <Route path="/users/:id/sellerdashboard" element={<SellerDashboard />} />
+        <Route path="/users/:id/buyerdashboard" element={<BuyerDashboard />} />
       </Routes>
     </Router>
   )

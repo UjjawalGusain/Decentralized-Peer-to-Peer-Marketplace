@@ -43,6 +43,7 @@ function UserProfilePage() {
   // Navigation handlers
   const handleSellerDashboard = () => navigate("sellerdashboard");
   const handleProfileEdit = () => navigate("update");
+  const handleBuyerDashboard = () => navigate("buyerdashboard");
 
   if (loading) {
     return (
@@ -125,6 +126,13 @@ function UserProfilePage() {
             type="button"
             color="bg-[#FEC010]"
             onSubmit={handleSellerDashboard}
+          />
+        )}
+        {token && user.roles.includes("buyer") && (
+          <Button
+            label="Buyer Dashboard"
+            type="button"
+            onSubmit={handleBuyerDashboard}
           />
         )}
       </main>

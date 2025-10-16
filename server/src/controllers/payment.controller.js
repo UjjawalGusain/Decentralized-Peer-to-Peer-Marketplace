@@ -119,6 +119,7 @@ class PaymentController {
 
   async updatePaymentByBuyer(req, res) {
     try {
+      
       const { razorpayOrderId, status } = req.body;
       const userId = req.user.userId;
 
@@ -131,14 +132,12 @@ class PaymentController {
         return res.status(404).json({ message: 'Buyer not found' });
       }
 
+      
+
       const payment = await Payment.findOne({ razorpayOrderId });
       if (!payment) {
         return res.status(404).json({ message: 'Payment not found' });
       } 
-
-      console.log("Payment user id: ", payment.userId);
-      console.log("user id: ", userId);
-      
 
       if (payment.userId.toString() !== userId) {
         return res
@@ -147,13 +146,14 @@ class PaymentController {
       }
 
       // Limit allowed statuses for buyer update, usually only initial escrow update
-      const validStatuses = ['escrowed', 'cancelled'];
+      const validStatuses = ['escrowed', 'cancelled', 'received'];
 
       if (!validStatuses.includes(status)) {
         return res
           .status(400)
           .json({ message: 'Invalid status value for buyer update' });
       }
+
 
       payment.status = status;
       await payment.save();

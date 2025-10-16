@@ -45,7 +45,7 @@ class OrderController {
     }
   }
 
-  async getOrders(req, res) {
+  async getOrdersBySeller(req, res) {
     try {
       const sellerId = req.query.sellerId;
 
@@ -73,6 +73,37 @@ class OrderController {
       });
     } catch (error) {
       console.error('Get orders by seller error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+
+  async getOrdersByBuyer(req, res) {
+    try {
+      const userId = req.user.userId;
+
+      console.log("BuyerId/userid: ", userId);
+      
+      const buyer = await User.findById(userId).lean();
+
+      if (!buyer) {
+        return res.status(404).json({ message: 'Buyer not found' });
+      }
+
+      if(!buyer.roles.includes("buyer")) {
+        return res.status(404).json({ message: 'User not a buyer' });
+      }
+
+      const orders = await Payment.find({
+        userId,
+        buyerCancelRequested: false,
+      }).lean();
+      console.log(orders);
+      
+      res.json({
+        orders,
+      });
+    } catch (error) {
+      console.error('Get orders by buyer error:', error);
       res.status(500).json({ message: 'Server error' });
     }
   }
