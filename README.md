@@ -46,7 +46,7 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 ---
 
 ## License
-[]
+For License: [Click Here](LICENSE)
 
 ---
 
