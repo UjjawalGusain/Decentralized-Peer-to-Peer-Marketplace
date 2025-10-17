@@ -9,9 +9,22 @@ const paymentRoutes = require('./routes/payment.routes');
 const payoutRoutes = require('./routes/payout.routes');
 const userRoutes = require('./routes/user.routes')
 const mongoose = require('mongoose');
+
+const http = require('http');
+const { Server } = require('socket.io');
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app); 
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  },
+});
+
+// setting io
+app.set("io", io);
 
 // Security headers
 app.use(helmet());
@@ -60,6 +73,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
