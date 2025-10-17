@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import APIS from "../../api/api";
 import { useAuth } from "../context/AuthContext.jsx";
 import Button from "./ProductPage/Button.jsx";
 import { useNavigate, useParams } from "react-router-dom";
+import ErrorPage from "./ErrorPages/ErrorPage.jsx";
 
 const SectionTitle = ({ children }) => (
   <h2 className="text-2xl font-semibold mb-4 border-l-4 border-[#FEC010] pl-3 text-slate-900">
@@ -13,8 +14,10 @@ const SectionTitle = ({ children }) => (
 
 function UserProfileUpdate() {
   const { id } = useParams();
-  const { token, refreshUser } = useAuth();
+  const { token, refreshUser, user } = useAuth();
   const navigate = useNavigate();
+
+  if (!user) return <ErrorPage message={"Sorry you have not logged in so you don't have access to this page."}/>;
 
   const {
     register,
@@ -38,7 +41,7 @@ function UserProfileUpdate() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchProfile() {
       try {
         setLoading(true);
@@ -122,11 +125,9 @@ function UserProfileUpdate() {
         setError(result.message || "Profile update failed.");
       } else {
         alert("Profile updated!");
-        // console.log(result);
         
         refreshUser(result?.user?.id);
         
-        // await refreshUser(user?.id);
         navigate(`/users/${result?.user?.id}`);
       }
     } catch (err) {

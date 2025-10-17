@@ -9,7 +9,7 @@ function Sell() {
     const { user } = useAuth();
 
 
-    if (!user) return <div>User Does Not Exist</div>;
+    if (!user) return <ErrorPage message={"Sorry you have not logged in so you don't have access to this page."}/>;
 
     if (!user.roles.includes("seller")) return <ErrorPage message={"We don't think you have the access to sell. Please update your roles from your profile."}/>;
 
