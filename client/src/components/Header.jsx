@@ -44,7 +44,7 @@ const Header = ({ search, setSearch }) => {
 
     return (
         <header className="bg-[#F9FAFB] shadow py-2">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="max-w-[90rem] mx-auto px-4 sm:px-6">
                 <div className="flex justify-between items-center py-1">
                     <div className="flex items-center justify-around w-full">
                         <div className="text-2xl font-bold text-blue-600 w-fit h-fit">
@@ -126,6 +126,17 @@ const Header = ({ search, setSearch }) => {
                                 }
                             >
                                 About Us
+                            </NavLink>
+                            <NavLink
+                                to="/chat"
+                                className={({ isActive }) =>
+                                    "hover:text-slate-800" +
+                                    (isActive
+                                        ? " text-slate-800 font-semibold underline"
+                                        : "")
+                                }
+                            >
+                                Messages
                             </NavLink>
                         </nav>
                     </div>

@@ -72,7 +72,11 @@ class ChatController {
         return res.status(404).json({ error: 'Receiver does not exist' });
       }
 
-      if (receiver._id.toString() === req.user._id.toString()) {
+    //   console.log(`receiver._id: ${receiver._id}`);
+    //   console.log(req.user);
+      
+
+      if (receiver._id.toString() === req.user.userId.toString()) {
         return res.status(400).json({ error: 'You cannot chat with yourself' });
       }
 
@@ -80,7 +84,7 @@ class ChatController {
         {
           $match: {
             $and: [
-              { participants: { $elemMatch: { $eq: req.user._id } } },
+              { participants: { $elemMatch: { $eq: new mongoose.Types.ObjectId(req.user.userId) } } },
               {
                 participants: {
                   $elemMatch: { $eq: new mongoose.Types.ObjectId(receiverId) },
@@ -101,7 +105,7 @@ class ChatController {
 
       const newChatInstance = await Chat.create({
         name: 'One on one chat',
-        participants: [req.user._id, new mongoose.Types.ObjectId(receiverId)],
+        participants: [req.user.userId, new mongoose.Types.ObjectId(receiverId)],
       });
 
       const createdChat = await Chat.aggregate([
@@ -115,8 +119,9 @@ class ChatController {
         return res.status(500).json({ error: 'Internal server error' });
       }
 
+
       payload?.participants?.forEach((participant) => {
-        if (participant._id.toString() === req.user._id.toString()) return;
+        if (participant._id.toString() === req.user.userId.toString()) return;
 
         emitSocketEvent(
           req,
@@ -125,6 +130,7 @@ class ChatController {
           payload
         );
       });
+
 
       return res.json({
         message: 'Chat created successfully',
@@ -138,8 +144,10 @@ class ChatController {
 
   getAllChats = async (req, res) => {
     try {
+        
+
       const chats = await Chat.aggregate([
-        { $match: { participants: { $elemMatch: { $eq: req.user._id } } } },
+        { $match: { participants: { $elemMatch: { $eq: new mongoose.Types.ObjectId(req.user.userId) } } } },
         { $sort: { updatedAt: -1 } },
         ...chatCommonAggregation(),
       ]);
@@ -155,4 +163,4 @@ class ChatController {
   };
 }
 
-module.exports = ChatController;
+module.exports = new ChatController();

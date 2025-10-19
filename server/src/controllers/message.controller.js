@@ -1,8 +1,8 @@
 const ChatMessage = require('./../models/Messages.model');
 const Chat = require('./../models/Chats.model');
 const { emitSocketEvent } = require('./../socket/socket.chat');
-import mongoose from 'mongoose';
-import { ChatEventEnum } from '../constants';
+const mongoose = require('mongoose');
+const { ChatEventEnum } = require('../constants.js');
 
 const chatMessageCommonAggregation = () => {
   return [
@@ -48,7 +48,7 @@ class MessageController {
     }
 
     const message = await ChatMessage.create({
-      sender: req.user._id,
+      sender: req.user.userId,
       content: content,
       chat: new mongoose.Types.ObjectId(chatId),
       // add attachments in future
@@ -80,7 +80,7 @@ class MessageController {
     }
 
     chat.participants.forEach(participantObjectId => {
-      if (participantObjectId.toString() === req.user._id.toString()) return; // that's the sender
+      if (participantObjectId.toString() === req.user.userId.toString()) return; // that's the sender
 
       emitSocketEvent(
         req,
@@ -105,7 +105,7 @@ class MessageController {
       return res.status(404).json({ error: 'Chat does not exist' });
     }
 
-    if (!selectedChat.participants?.includes(req.user?._id)) {
+    if (!selectedChat.participants?.includes(req.user?.userId)) {
       return res.status(400).json({ error: 'User is not a part of this chat' });
     }
 

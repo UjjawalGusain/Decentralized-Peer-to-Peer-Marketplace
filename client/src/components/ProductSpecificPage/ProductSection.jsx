@@ -1,6 +1,9 @@
 import SectionTitle from "../common/SectionTitle";
 import Button from "../ProductPage/Button";
-
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
+import APIS from "../../../api/api";
 
 export default function ProductSection({
     product,
@@ -8,10 +11,33 @@ export default function ProductSection({
     setMainImage,
     handleBuy,
 }) {
+    const { token } = useAuth();
+    const navigate = useNavigate();
 
-    const handleMessage = () => {
-        alert("Message still in development. Please wait for new version")
-    }
+    const handleMessage = async () => {
+        try {
+            if (!token) {
+                alert("Please log in to message the seller.");
+                return;
+            }
+            const res = await axios.post(
+                `${APIS.CHATS}/create/${product.sellerId}`,
+                {},
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+            // console.log(`res: `);
+            // console.log(res);
+
+            const chatId = res.data.content._id;
+
+            navigate(`/chat/${chatId}`);
+        } catch (error) {
+            console.error("Failed to start chat", error);
+            alert("Unable to start chat with seller. Please try again.");
+        }
+    };
 
     return (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
@@ -21,6 +47,28 @@ export default function ProductSection({
                 <p className="text-[#FEC010] font-semibold uppercase tracking-wide">
                     {product.category}
                 </p>
+                <div className="flex items-center gap-4 mt-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100 w-fit">
+                    {product.sellerId?.profile?.avatar ? (
+                        <img
+                            src={product.sellerId.profile.avatar}
+                            alt={`${product.sellerId.profile.name}'s avatar`}
+                            className="w-12 h-12 rounded-full object-cover border-2 border-[#FEC010] shadow-sm"
+                        />
+                    ) : (
+                        <div className="w-12 h-12 rounded-full bg-[#FEC010]/20 border border-[#FEC010] flex items-center justify-center text-[#FEC010] font-bold text-lg shadow-sm">
+                            {product.sellerId?.profile?.name?.[0] || "S"}
+                        </div>
+                    )}
+                    <div>
+                        <span className="text-sm text-gray-500 font-medium block">
+                            Seller
+                        </span>
+                        <span className="text-lg font-semibold text-slate-900">
+                            {product.sellerId?.profile?.name ||
+                                "Unknown Seller"}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {/* Image gallery */}
@@ -177,7 +225,11 @@ export default function ProductSection({
             <div className="flex gap-4">
                 {/* Changed onSubmit to onClick for Button component */}
                 <Button label={"Buy Now"} onSubmit={handleBuy} />
-                <Button label={"Message Seller"} color={"bg-[#FEC010]"} onSubmit={handleMessage} />
+                <Button
+                    label={"Message Seller"}
+                    color={"bg-[#FEC010]"}
+                    onSubmit={handleMessage}
+                />
             </div>
         </main>
     );

@@ -47,7 +47,7 @@ function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="bg-gray-50 min-h-full flex items-center justify-center">
         Loading...
       </div>
     );

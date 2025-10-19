@@ -40,7 +40,7 @@ function SellerDashboardProducts() {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            console.log(res);
+            // console.log(res);
 
             setProducts(res.data.products);
         } catch (e) {

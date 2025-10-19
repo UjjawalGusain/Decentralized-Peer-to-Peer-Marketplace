@@ -22,6 +22,10 @@ function ProductSpecificPage() {
                 if (!response.ok) throw new Error("Product not found");
                 const data = await response.json();
                 setProduct(data);
+                // console.log("Data: ");
+                // console.log(data);
+                
+                
                 setMainImage(
                     data.images && data.images.length > 0
                         ? data.images[0]
@@ -53,11 +57,6 @@ function ProductSpecificPage() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const { order } = response.data;
-
-            console.log("Response");
-            console.log(response);
-            
-            
 
             // Step 2: Load Razorpay Script
             const razorpayLoaded = await loadRazorpayScript();
@@ -133,7 +132,7 @@ function ProductSpecificPage() {
     if (!product) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="min-h-full bg-gray-50 font-sans">
             <ProductSection
                 product={product}
                 mainImage={mainImage}

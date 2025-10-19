@@ -206,7 +206,7 @@ const FiltersSidebar = ({
   };
 
   return (
-    <div className="p-4 rounded-lg bg-white shadow sticky top-20 text-gray-800">
+    <div className="p-4 rounded-lg bg-white shadow sticky h-fit top-2 text-gray-800">
       {/* Pass local state and setters to filter UI components */}
       <CategoryFilter
         selectedCategories={localCategory}

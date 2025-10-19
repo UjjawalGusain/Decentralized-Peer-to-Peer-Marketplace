@@ -49,7 +49,7 @@ const BrowsePage = ({ search }) => {
   }, [search, category, minPrice, maxPrice, lat, lng, sortBy, maxDistance]);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-full bg-gray-50 font-sans">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <section className="md:col-span-2">

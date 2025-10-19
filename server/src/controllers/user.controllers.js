@@ -164,7 +164,7 @@ class UserController {
         // Update oldUser object locally with fund_contact_id for next steps
         oldUser.fund_contact_id = contact.id;
       }
-      console.log(oldUser.fund_contact_id);
+      // console.log(oldUser.fund_contact_id);
 
       if (isSeller && !wasSeller) {
         if (oldFundAccountId) {

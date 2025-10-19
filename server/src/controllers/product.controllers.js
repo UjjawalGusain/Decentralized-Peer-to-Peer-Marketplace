@@ -160,7 +160,12 @@ class ProductController {
         return res.status(400).json({ message: 'Invalid product ID' });
       }
 
-      const product = await Product.findById(productId).lean();
+      const product = await Product.findById(productId)
+        .populate({
+          path: 'sellerId',
+          select: 'profile.name profile.avatar',
+        })
+        .lean();
 
       if (!product) {
         return res.status(404).json({ message: 'Product not found' });
@@ -183,16 +188,11 @@ class ProductController {
 
       const seller = await User.findById(sellerId).lean();
 
-      console.log(seller);
-      console.log("Found seller");
-      
-      
-
       if (!seller) {
         return res.status(404).json({ message: 'Seller not found' });
       }
 
-      if(!seller.roles.includes("seller")) {
+      if (!seller.roles.includes('seller')) {
         return res.status(404).json({ message: 'User not a seller' });
       }
 
@@ -202,7 +202,7 @@ class ProductController {
       }).lean();
 
       res.json({
-        products
+        products,
       });
     } catch (error) {
       console.error('Get products by seller error:', error);

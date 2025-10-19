@@ -15,7 +15,7 @@ function SellerDashboard() {
     if (!user.roles.includes("seller")) return <ErrorPage message={"We don't think you have the access to sell. Please update your roles from your profile."}/>;
     const [activeTab, setActiveTab] = useState("Products");
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 py-12 relative overflow-visible">
+        <div className="min-h-full bg-gray-50 flex flex-col items-center px-6 py-12 relative overflow-visible">
             <h1 className="text-4xl font-bold font-inter text-[#FEC010] mb-6 relative z-10">
                 Your Activity Dashboard!
             </h1>

@@ -15,7 +15,7 @@ function Sell() {
 
     return (
         user.roles.includes("seller") && (
-            <div className="min-h-screen bg-gray-50 font-inter flex flex-col items-center px-4 py-12 relative overflow-visible">
+            <div className="min-h-full bg-gray-50 font-inter flex flex-col items-center px-4 py-12 relative overflow-visible">
                 <main className="w-full max-w-3xl mx-auto rounded-xl shadow-xl py-8 px-6 relative z-10 border border-yellow-50">
                     <h1 className="text-4xl font-bold text-center text-[#FEC010] mb-8 font-inter">
                         Let's post an ad for you!

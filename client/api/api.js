@@ -1,5 +1,5 @@
-const BASE_URL = "http://localhost:5000";
-// const BASE_URL = "https://decentralized-peer-to-peer-marketpl.vercel.app";
+// const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://decentralized-peer-to-peer-marketpl.vercel.app";
 
 const APIS = {
     LOGIN: `${BASE_URL}/api/auth/login`,
@@ -25,7 +25,11 @@ const APIS = {
 
     PRODUCT_BY_SELLER: `${BASE_URL}/api/products/product-by-seller`, // Expect /:sellerId&:status appended
     ORDER_BY_SELLER: `${BASE_URL}/orders/orders-by-seller`, // Expect /:sellerId appended
-    ORDER_BY_BUYER: `${BASE_URL}/orders/orders-by-buyer`, 
+    ORDER_BY_BUYER: `${BASE_URL}/orders/orders-by-buyer`,
+
+    MESSAGES: `${BASE_URL}/api/messages`,
+    MESSAGES_SEND: `${BASE_URL}/api/messages/send`,
+    CHATS: `${BASE_URL}/api/chats`,
 };
 
 export default APIS;

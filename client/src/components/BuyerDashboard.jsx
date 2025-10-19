@@ -14,7 +14,7 @@ function BuyerDashboard() {
 
     if (!user.roles.includes("buyer")) return <ErrorPage message={"Sorry you are not a buyer"}/>;
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 py-12 relative overflow-visible">
+        <div className="min-h-full bg-gray-50 flex flex-col items-center px-6 py-12 relative overflow-visible">
             <h1 className="text-4xl font-bold font-inter text-[#FEC010] mb-6 relative z-10">
                 Your Buyer Dashboard!
             </h1>

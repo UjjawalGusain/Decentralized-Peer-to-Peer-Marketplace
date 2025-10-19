@@ -100,7 +100,7 @@ const LoginRegister = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-teal-50 to-green-50 p-4">
+        <div className="min-h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-teal-50 to-green-50 p-4">
             <div className="w-full max-w-4xl bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col md:flex-row">
                 {/* Left Side */}
                 <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-teal-400 to-green-500 text-white items-center justify-center p-8">

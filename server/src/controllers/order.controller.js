@@ -49,7 +49,7 @@ class OrderController {
     try {
       const sellerId = req.query.sellerId;
 
-      console.log("SellerId: ", sellerId);
+      // console.log("SellerId: ", sellerId);
       
       const seller = await User.findById(sellerId).lean();
 
@@ -66,7 +66,7 @@ class OrderController {
         status: 'escrowed',
         buyerCancelRequested: false,
       }).lean();
-      console.log(orders);
+      // console.log(orders);
       
       res.json({
         orders,
@@ -81,7 +81,7 @@ class OrderController {
     try {
       const userId = req.user.userId;
 
-      console.log("BuyerId/userid: ", userId);
+      // console.log("BuyerId/userid: ", userId);
       
       const buyer = await User.findById(userId).lean();
 
@@ -97,7 +97,7 @@ class OrderController {
         userId,
         buyerCancelRequested: false,
       }).lean();
-      console.log(orders);
+      // console.log(orders);
       
       res.json({
         orders,

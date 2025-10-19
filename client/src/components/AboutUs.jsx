@@ -2,7 +2,7 @@ import React from "react";
 
 const AboutUs = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 py-12 relative overflow-visible">
+    <div className="min-h-full bg-gray-50 flex flex-col items-center px-6 py-12 relative overflow-visible">
       
       {/* Yellow blurred cloud shape behind */}
       <div
