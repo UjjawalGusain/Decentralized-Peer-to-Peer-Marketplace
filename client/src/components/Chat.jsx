@@ -3,74 +3,90 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import APIS from "../../api/api";
+import { ChatEventEnum } from "../constants";
 
 const Chat = ({ selectedChat }) => {
   const { token, user } = useAuth();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [socketConnected, setSocketConnected] = useState(false);
-  const messagesEndRef = useRef(null);
+  const [friendSocketConnected, setFriendSocketConnected] = useState(false);
 
   const socket = useRef(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (!token) return;
+
     socket.current = io(import.meta.env.VITE_API_URL, {
       auth: { token },
     });
 
-    socket.current.on("connect", () => {
-    //   console.log("Socket Connected:", socket.current.id);
-      setSocketConnected(true);
-    });
+    socket.current.on(ChatEventEnum.CONNECTED_EVENT, () => setSocketConnected(true));
+    socket.current.on(ChatEventEnum.DISCONNECT_EVENT, () => setSocketConnected(false));
 
-    socket.current.on("MESSAGE_RECEIVED_EVENT", (newMessage) => {
+    socket.current.on(ChatEventEnum.MESSAGE_RECEIVED_EVENT, (newMessage) => {
       setMessages((prev) => [...prev, newMessage]);
     });
 
+    const handleFriendConnect = ({ userId }) => {
+      const friendId = selectedChat?.participants.find((p) => p._id !== user.id)?._id;
+      if (friendId === userId) setFriendSocketConnected(true);
+    };
+
+    const handleFriendDisconnect = ({ userId }) => {
+      const friendId = selectedChat?.participants.find((p) => p._id !== user.id)?._id;
+      if (friendId === userId) setFriendSocketConnected(false);
+    };
+
+    socket.current.on(ChatEventEnum.FRIEND_CONNECTED_EVENT, handleFriendConnect);
+    socket.current.on(ChatEventEnum.FRIEND_DISCONNECT_EVENT, handleFriendDisconnect);
+
+    socket.current.on("friend-online-status", ({ userId, online }) => {
+      const friendId = selectedChat?.participants.find((p) => p._id !== user.id)?._id;
+      if (friendId === userId) setFriendSocketConnected(online);
+    });
+
     return () => {
+      socket.current.off(ChatEventEnum.MESSAGE_RECEIVED_EVENT);
+      socket.current.off(ChatEventEnum.FRIEND_CONNECTED_EVENT, handleFriendConnect);
+      socket.current.off(ChatEventEnum.FRIEND_DISCONNECT_EVENT, handleFriendDisconnect);
+      socket.current.off("friend-online-status");
       socket.current.disconnect();
     };
-  }, [token]);
+  }, [token, selectedChat, user.id]);
 
   useEffect(() => {
-    if (selectedChat?._id && token) {
-      axios
-        .get(`${APIS.MESSAGES}/${selectedChat._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => setMessages(res.data.messages.reverse()))
-        .catch((err) => console.error("Failed to load messages", err));
-    }
+    if (!selectedChat?._id || !token) return;
+
+    axios
+      .get(`${APIS.MESSAGES}/${selectedChat._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setMessages(res.data.messages.reverse()))
+      .catch((err) => console.error("Failed to load messages", err));
   }, [selectedChat, token]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async (e) => {
+  useEffect(() => {
+    if (!selectedChat?._id || !socket.current || !socketConnected) return;
+
+    socket.current.emit(ChatEventEnum.JOIN_CHAT_EVENT, selectedChat._id);
+  }, [selectedChat, socketConnected]);
+
+  const sendMessage = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
-    try {
-      const res = await axios.post(
-        `${APIS.MESSAGES_SEND}/${selectedChat._id}`,
-        { content: message },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+    socket.current.emit(ChatEventEnum.SEND_MESSAGE_EVENT, {
+      chatId: selectedChat._id,
+      content: message,
+    });
 
-      const msg = res.data.receivedMessage;
-      setMessages((prev) => [...prev, msg]);
-
-      socket.current.emit("sendMessage", {
-        chatId: selectedChat._id,
-        content: message,
-      });
-
-      setMessage("");
-    } catch (err) {
-      console.error("Error sending message:", err);
-    }
+    setMessage("");
   };
 
   return (
@@ -80,18 +96,11 @@ const Chat = ({ selectedChat }) => {
         <span>
           Chat with{" "}
           <span className="text-gray-800 font-bold">
-            {
-              selectedChat.participants.find((p) => p._id !== user.id)?.profile
-                .name
-            }
+            {selectedChat.participants.find((p) => p._id !== user.id)?.profile.name}
           </span>
         </span>
-        <span
-          className={`text-xs ${
-            socketConnected ? "text-green-600" : "text-gray-400"
-          }`}
-        >
-          {socketConnected ? "● Online" : "● Offline"}
+        <span className={`text-xs ${socketConnected ? "text-green-600" : "text-gray-400"}`}>
+          {friendSocketConnected ? "● Online" : "● Offline"}
         </span>
       </div>
 
@@ -100,13 +109,11 @@ const Chat = ({ selectedChat }) => {
         {messages.map((msg) => (
           <div
             key={msg._id}
-            className={`flex ${
-              msg.sender?._id === user?.id ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${(msg.sender?._id || msg.sender) === user.id ? "justify-end" : "justify-start"}`}
           >
             <div
               className={`max-w-[75%] px-4 py-2 rounded-2xl shadow-sm text-sm ${
-                msg.sender?._id === user?.id
+                (msg.sender?._id || msg.sender) === user.id
                   ? "bg-[#FEC010] text-slate-900 rounded-br-none"
                   : "bg-white border border-gray-200 text-gray-800 rounded-bl-none"
               }`}
@@ -119,14 +126,11 @@ const Chat = ({ selectedChat }) => {
       </div>
 
       {/* Input Bar */}
-      <form
-        onSubmit={sendMessage}
-        className="p-3 border-t bg-white flex items-center"
-      >
+      <form onSubmit={sendMessage} className="p-3 border-t bg-white flex items-center">
         <input
           type="text"
-          className="flex-1 border border-gray-300 rounded-l-xl px-4 py-2 focus:ring-2 focus:ring-[#FEC010] outline-none text-gray-800"
           placeholder="Type a message..."
+          className="flex-1 border border-gray-300 rounded-l-xl px-4 py-2 focus:ring-2 focus:ring-[#FEC010] outline-none text-gray-800"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
