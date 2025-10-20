@@ -4,12 +4,12 @@ import APIS from "../../api/api";
 import Hero from "./ProductPage/Hero";
 import CategoryGrid from "./ProductPage/CategoryGrid";
 import TalkingDuck from "./ProductPage/TalkingDuck";
+
 const Home = () => {
   const [category, setCategory] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
 
   // Fetch products
   const fetchCategoryProducts = async () => {
@@ -21,8 +21,6 @@ const Home = () => {
       if (search.trim()) params.search = search.trim();
 
       const response = await axios.get(`${APIS.PRODUCTS_TOP}`, { params });
-      // console.log(response.data.categoryProducts);
-
       setCategory(response.data.categoryProducts);
     } catch (err) {
       setError("Failed to load products");
@@ -35,12 +33,11 @@ const Home = () => {
     fetchCategoryProducts();
   }, [search]);
 
-  // Local filtering
-
   return (
     <div className="min-h-full bg-gray-50 font-sans">
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8">
+        {/* Responsive Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           <section className="md:col-span-2">
             <Hero />
 
@@ -51,9 +48,10 @@ const Home = () => {
             />
           </section>
         </div>
-
       </main>
-      <TalkingDuck/>
+
+      {/* Duck component at the bottom */}
+      <TalkingDuck />
     </div>
   );
 };

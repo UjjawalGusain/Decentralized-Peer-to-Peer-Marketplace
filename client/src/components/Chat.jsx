@@ -90,10 +90,10 @@ const Chat = ({ selectedChat }) => {
   };
 
   return (
-    <div className="flex flex-col h-full rounded-2xl overflow-hidden">
+    <div className="flex flex-col h-full rounded-2xl overflow-hidden w-full max-w-full sm:max-w-[600px] md:max-w-[700px] lg:max-w-full">
       {/* Header */}
-      <div className="p-5 border-b bg-[#FFF7D1] text-slate-900 font-semibold flex items-center justify-between">
-        <span>
+      <div className="p-4 sm:p-5 border-b bg-[#FFF7D1] text-slate-900 font-semibold flex items-center justify-between">
+        <span className="text-sm sm:text-base">
           Chat with{" "}
           <span className="text-gray-800 font-bold">
             {selectedChat.participants.find((p) => p._id !== user.id)?.profile.name}
@@ -105,14 +105,16 @@ const Chat = ({ selectedChat }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-5 bg-gray-50 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-5 bg-gray-50 space-y-3">
         {messages.map((msg) => (
           <div
             key={msg._id}
-            className={`flex ${(msg.sender?._id || msg.sender) === user.id ? "justify-end" : "justify-start"}`}
+            className={`flex ${
+              (msg.sender?._id || msg.sender) === user.id ? "justify-end" : "justify-start"
+            }`}
           >
             <div
-              className={`max-w-[75%] px-4 py-2 rounded-2xl shadow-sm text-sm ${
+              className={`max-w-[80%] sm:max-w-[75%] px-3 sm:px-4 py-2 rounded-2xl shadow-sm text-sm break-words ${
                 (msg.sender?._id || msg.sender) === user.id
                   ? "bg-[#FEC010] text-slate-900 rounded-br-none"
                   : "bg-white border border-gray-200 text-gray-800 rounded-bl-none"
@@ -126,17 +128,17 @@ const Chat = ({ selectedChat }) => {
       </div>
 
       {/* Input Bar */}
-      <form onSubmit={sendMessage} className="p-3 border-t bg-white flex items-center">
+      <form className="p-2 sm:p-3 border-t bg-white flex items-center gap-2" onSubmit={sendMessage}>
         <input
           type="text"
           placeholder="Type a message..."
-          className="flex-1 border border-gray-300 rounded-l-xl px-4 py-2 focus:ring-2 focus:ring-[#FEC010] outline-none text-gray-800"
+          className="flex-1 border border-gray-300 rounded-l-xl px-3 py-2 sm:px-4 sm:py-2 focus:ring-2 focus:ring-[#FEC010] outline-none text-gray-800"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
         <button
           type="submit"
-          className="px-6 py-2 bg-[#FEC010] text-slate-900 font-semibold rounded-r-xl hover:bg-yellow-400 transition-colors"
+          className="px-4 sm:px-6 py-2 bg-[#FEC010] text-slate-900 font-semibold rounded-r-xl hover:bg-yellow-400 transition-colors text-sm sm:text-base"
         >
           Send
         </button>

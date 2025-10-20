@@ -4,13 +4,16 @@ const TalkingDuck = () => {
   const [visible, setVisible] = useState(true);
   const [wordIndex, setWordIndex] = useState(0);
 
-  const message =
-    "Hey guys! This is me Bill. Thank you for visiting our site! One teeny tiny request, why not sell your old items here? Someone might be able to use it!";
+  // Messages
+  const fullMessage =
+    "Hey guys! This is me Bill. Thanks for visiting! Why not sell your old items here? Someone might use them!";
+  const shortMessage =
+    "Hi! I'm Bill. Thanks for visiting! Sell your old items here!";
 
-  // Split into words but keep sentence punctuation
-  const words = message.split(" ");
+  // Split into words
+  const words = fullMessage.split(" ");
 
-  // Helper: group words into sentences
+  // Group into sentences
   const sentences = [];
   let currentSentence = [];
   words.forEach((word) => {
@@ -22,12 +25,7 @@ const TalkingDuck = () => {
   });
   if (currentSentence.length > 0) sentences.push(currentSentence);
 
-  // useEffect(() => {
-  //   setVisible(true);
-  //   const hideTimer = setTimeout(() => setVisible(false), 10000);
-  //   return () => clearTimeout(hideTimer);
-  // }, []);
-
+  // Typing animation
   useEffect(() => {
     if (!visible) return;
 
@@ -37,12 +35,12 @@ const TalkingDuck = () => {
         clearInterval(interval);
         return prev;
       });
-    }, 300); // show a new word every 100ms
+    }, 300);
 
     return () => clearInterval(interval);
   }, [visible]);
 
-  // Determine how many words to show from each sentence
+  // Determine words to render
   let wordsCounted = 0;
   const renderedSentences = sentences.map((sentence, i) => {
     const remaining = wordIndex - wordsCounted;
@@ -55,20 +53,39 @@ const TalkingDuck = () => {
 
   return (
     <div
-      className={`fixed bottom-[-20px] right-0 m-4 w-56 h-80 pointer-events-none transform transition-transform duration-700 ${
-        visible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-      }`}
+      className={`fixed bottom-0 right-0 m-4 pointer-events-none transform transition-transform duration-700
+        ${visible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}
+        w-20 h-20 md:w-56 md:h-80`}
     >
-      <div className="relative w-full h-full">
-        <div className="absolute top-[-100px] left-[-100px] text-black bg-opacity-50 rounded px-2 py-1 select-none pointer-events-auto transition-opacity duration-500">
-          {renderedSentences}
+      <div className="relative w-full h-full flex items-end justify-end">
+        {/* Small and medium screens */}
+        <div className="md:hidden relative w-full h-full flex items-center justify-center pointer-events-auto ">
+          {/* Duck background */}
+          <div className="absolute inset-0 bg-white rounded-full shadow-lg "></div>
+
+          {/* Speech bubble */}
+          <div className="absolute bottom-full right-0 mb-1 bg-white bg-opacity-90 border border-gray-300 rounded-xl px-2 py-1 shadow-lg text-[9px] sm:text-[11px] max-w-[150px] sm:max-w-[180px] pointer-events-auto select-none leading-snug">
+            {shortMessage}
+          </div>
+
+          <img
+            src="./talking_ducky.png"
+            alt="Talking Duck"
+            className="relative w-12 h-12 object-contain"
+          />
         </div>
 
-        <img
-          src="./talking_ducky.png"
-          alt="Decoration"
-          className="w-full h-full object-contain"
-        />
+        {/* Large screens */}
+        <div className="hidden md:flex relative w-full h-full items-center justify-center pointer-events-auto">
+          <img
+            src="./talking_ducky.png"
+            alt="Talking Duck"
+            className="w-full h-full object-contain"
+          />
+          <div className="absolute top-[-100px] left-[-100px] text-black bg-opacity-50 rounded px-2 py-1 select-none pointer-events-auto transition-opacity duration-500 text-sm ">
+            {renderedSentences}
+          </div>
+        </div>
       </div>
     </div>
   );
