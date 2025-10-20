@@ -1,5 +1,6 @@
 // const BASE_URL = "http://localhost:5000";
-const BASE_URL = "https://decentralized-peer-to-peer-marketpl.vercel.app";
+// const BASE_URL = "https://decentralized-peer-to-peer-marketpl.vercel.app";
+const BASE_URL = "http://3.95.175.77:5000";
 
 const APIS = {
     LOGIN: `${BASE_URL}/api/auth/login`,
