@@ -185,6 +185,14 @@ const Chat = ({ selectedChat }) => {
                 >
                     Send
                 </button>
+                
+                <button
+                    onClick={() => notificationSound.current.play()}
+                    className="bg-yellow-400 p-2 rounded"
+                >
+                    Test Sound
+                </button>
+                
             </form>
         </div>
     );
