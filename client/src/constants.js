@@ -1,5 +1,5 @@
 export const ChatEventEnum = Object.freeze({
-  CONNECTED_EVENT: "connected",
+  CONNECTED_EVENT: "connect",
   DISCONNECT_EVENT: "disconnect",
   FRIEND_DISCONNECT_EVENT: "friendDisconnect",
   FRIEND_CONNECTED_EVENT: "friendConnect",

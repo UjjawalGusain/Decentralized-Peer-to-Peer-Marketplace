@@ -7,7 +7,7 @@ import { useSocket } from "../context/SocketContext";
 
 const Chat = ({ selectedChat }) => {
   const { token, user } = useAuth();
-  const { socket, socketConnected } = useSocket();
+  const { socket, socketConnected, isUserOnline, lastMessage } = useSocket();
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -15,21 +15,39 @@ const Chat = ({ selectedChat }) => {
 
   const messagesEndRef = useRef(null);
 
+  // Keep selectedChat stable
+  const selectedChatRef = useRef(selectedChat);
   useEffect(() => {
+    selectedChatRef.current = selectedChat;
+  }, [selectedChat]);
+
+  const friendId = selectedChat?.participants.find((p) => p._id !== user.id)?._id;
+
+  // Join chat room & handle online status
+  useEffect(() => {
+    // console.log("Did reach here");
+    // console.log(selectedChat);
+    // console.log(socket);
+    // console.log(socketConnected);
+    
+    
+    
+    
     if (!selectedChat?._id || !socket || !socketConnected) return;
 
-    const friendId = selectedChat.participants.find(
-      (p) => p._id !== user.id
-    )?._id;
-
-    // Join chat room
     socket.emit(ChatEventEnum.JOIN_CHAT_EVENT, selectedChat._id);
+    // console.log(`isUserOnline(friendId): ${isUserOnline(friendId)}`);
+    
+    setFriendSocketConnected(isUserOnline(friendId));
 
-    // Friend online/offline events (chat-specific)
     const handleFriendConnect = ({ userId }) => {
+      // console.log("Friend connect");
+      
       if (userId === friendId) setFriendSocketConnected(true);
     };
     const handleFriendDisconnect = ({ userId }) => {
+      // console.log("Friend disconnect");
+
       if (userId === friendId) setFriendSocketConnected(false);
     };
 
@@ -40,9 +58,9 @@ const Chat = ({ selectedChat }) => {
       socket.off(ChatEventEnum.FRIEND_CONNECTED_EVENT, handleFriendConnect);
       socket.off(ChatEventEnum.FRIEND_DISCONNECT_EVENT, handleFriendDisconnect);
     };
-  }, [selectedChat, socket, socketConnected, user.id]);
+  }, [selectedChat?._id, socket, socketConnected, friendId, isUserOnline]);
 
-  // Load chat messages
+  // Load all chat messages
   useEffect(() => {
     if (!selectedChat?._id || !token) return;
 
@@ -52,28 +70,37 @@ const Chat = ({ selectedChat }) => {
       })
       .then((res) => setMessages(res.data.messages.reverse()))
       .catch((err) => console.error("Failed to load messages", err));
-  }, [selectedChat, token]);
+  }, [selectedChat?._id, token]);
 
-  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (!lastMessage) return;
+    if (lastMessage.chat !== selectedChatRef.current?._id) return;
+
+    setMessages((prev) => [...prev, lastMessage]);
+
+  }, [lastMessage, user.id]);
+
+  // Auto-scroll on message update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Handle sending message
+  // Send a message
   const sendMessage = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
-    socket.emit(ChatEventEnum.SEND_MESSAGE_EVENT, {
-      chatId: selectedChat._id,
-      content: message,
-    });
+    const msgObj = { chatId: selectedChat._id, content: message };
 
-    setMessage("");
+    socket.emit(ChatEventEnum.SEND_MESSAGE_EVENT, msgObj);
+
+    // Optimistic UI update
     setMessages((prev) => [
       ...prev,
       { sender: { _id: user.id }, content: message, _id: Date.now() },
-    ]); // optional optimistic update
+    ]);
+
+    setMessage("");
   };
 
   return (
@@ -83,13 +110,13 @@ const Chat = ({ selectedChat }) => {
         <span className="text-sm sm:text-base">
           Chat with{" "}
           <span className="text-gray-800 font-bold">
-            {selectedChat.participants.find((p) => p._id !== user.id)?.profile
-              .name || "Unknown"}
+            {selectedChat?.participants.find((p) => p._id !== user.id)?.profile?.name ||
+              "Unknown"}
           </span>
         </span>
         <span
           className={`text-xs ${
-            socketConnected ? "text-green-600" : "text-gray-400"
+            friendSocketConnected ? "text-green-600" : "text-gray-400"
           }`}
         >
           {friendSocketConnected ? "● Online" : "● Offline"}
