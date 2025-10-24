@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import APIS from "../../api/api";
+import { setupAxiosInterceptor } from "../utils/axiosSetup";
 const AuthContext = createContext(null);
 
 // Custom hook to use auth context
 export const useAuth = () => useContext(AuthContext);
-
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null); // User object
@@ -42,8 +42,14 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
     };
 
+    useEffect(() => {
+        if (token && logout) {
+            setupAxiosInterceptor(logout);
+        }
+    }, [token, logout]);
+
     const refreshUser = async (id) => {
-        if (!token || !id) return; 
+        if (!token || !id) return;
 
         try {
             const response = await fetch(`${APIS.USERS}/${id}`, {
@@ -58,7 +64,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, refreshUser }}>
+        <AuthContext.Provider
+            value={{ user, token, login, logout, refreshUser }}
+        >
             {children}
         </AuthContext.Provider>
     );

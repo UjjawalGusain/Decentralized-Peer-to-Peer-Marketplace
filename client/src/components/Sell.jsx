@@ -11,7 +11,7 @@ function Sell() {
 
     if (!user) return <ErrorPage message={"Sorry you have not logged in so you don't have access to this page."}/>;
 
-    if (!user.roles.includes("seller")) return <ErrorPage message={"We don't think you have the access to sell. Please update your roles from your profile."}/>;
+    if (!user.roles.includes("seller")) return <ErrorPage message={"You don't have access to sell. Click your profile pic, and change your access."}/>;
 
     return (
         user.roles.includes("seller") && (
