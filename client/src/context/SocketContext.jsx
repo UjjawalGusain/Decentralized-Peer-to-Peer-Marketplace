@@ -7,11 +7,10 @@ const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
   const { token, user } = useAuth();
-  const socket = useRef(null);
+  const socketRef = useRef(null);
   const [socketConnected, setSocketConnected] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState([]); // all currently online users
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [lastMessage, setLastMessage] = useState(null);
-
 
   const notificationSound = useRef(new Audio("/notification_baby_duck.mp3"));
   const userIdRef = useRef(user?.id);
@@ -21,47 +20,71 @@ export const SocketProvider = ({ children }) => {
   }, [user?.id]);
 
   useEffect(() => {
-    if (!token) return;
+    notificationSound.current.load();
+  }, []);
 
-    // Connect socket globally
-    socket.current = io(import.meta.env.VITE_API_URL, {
+  useEffect(() => {
+    if (!token || !user?.id) return;
+
+    const socket = io(import.meta.env.VITE_API_URL, {
       auth: { token },
+      reconnectionAttempts: 3,
     });
+    socketRef.current = socket;
 
     // Connection events
-    socket.current.on(ChatEventEnum.CONNECTED_EVENT, () => setSocketConnected(true));
-    socket.current.on(ChatEventEnum.DISCONNECT_EVENT, () => setSocketConnected(false));
-
-    // Global message notifications
-    socket.current.on(ChatEventEnum.MESSAGE_RECEIVED_EVENT, (newMessage) => {
-      if ((newMessage.sender?._id || newMessage.sender) !== userIdRef.current) {
-        // console.log("Here");
-        setLastMessage(newMessage);
-        
-        notificationSound.current.play().catch(() => {});
-      }
+    socket.on(ChatEventEnum.CONNECTED_EVENT, () => {
+      console.log("Socket connected:", socket.id);
+      setSocketConnected(true);
     });
 
-    // Track online users globally
-    socket.current.on("friend-online-status", ({ userId, online }) => {
+    socket.on(ChatEventEnum.DISCONNECT_EVENT, (reason) => {
+      console.log("Socket disconnected:", reason);
+      setSocketConnected(false);
+    });
+
+    // Friend online/offline events
+    socket.on("friend-online-status", ({ userId, online }) => {
+      console.log(`Friend ${userId} is ${online ? "online" : "offline"}`);
       setOnlineUsers((prev) => {
         if (online && !prev.includes(userId)) return [...prev, userId];
         if (!online) return prev.filter((id) => id !== userId);
-        
         return prev;
       });
     });
 
-    return () => {
-      socket.current.disconnect();
-    };
-  }, [token]);
+    // Incoming messages
+    socket.on(ChatEventEnum.MESSAGE_RECEIVED_EVENT, (newMessage) => {
+      if ((newMessage.sender?._id || newMessage.sender) !== userIdRef.current) {
+        setLastMessage(newMessage);
+        notificationSound.current.play().catch(() => {});
+      }
+    });
 
-  // Helper to check if a specific friend is online
+    // Cleanup on logout/unmount
+    return () => {
+      if (socketRef.current) {
+        console.log("Disconnecting socket...");
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setOnlineUsers([]);
+        setSocketConnected(false);
+      }
+    };
+  }, [token, user?.id]);
+
   const isUserOnline = (userId) => onlineUsers.includes(userId);
 
   return (
-    <SocketContext.Provider value={{ socket: socket.current, socketConnected, isUserOnline, lastMessage }}>
+    <SocketContext.Provider
+      value={{
+        socket: socketRef.current,
+        socketConnected,
+        isUserOnline,
+        lastMessage,
+        onlineUsers,
+      }}
+    >
       {children}
     </SocketContext.Provider>
   );

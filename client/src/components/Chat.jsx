@@ -11,56 +11,17 @@ const Chat = ({ selectedChat }) => {
 
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [friendSocketConnected, setFriendSocketConnected] = useState(false);
 
   const messagesEndRef = useRef(null);
-
-  // Keep selectedChat stable
   const selectedChatRef = useRef(selectedChat);
+
   useEffect(() => {
     selectedChatRef.current = selectedChat;
   }, [selectedChat]);
 
   const friendId = selectedChat?.participants.find((p) => p._id !== user.id)?._id;
 
-  // Join chat room & handle online status
-  useEffect(() => {
-    // console.log("Did reach here");
-    // console.log(selectedChat);
-    // console.log(socket);
-    // console.log(socketConnected);
-    
-    
-    
-    
-    if (!selectedChat?._id || !socket || !socketConnected) return;
-
-    socket.emit(ChatEventEnum.JOIN_CHAT_EVENT, selectedChat._id);
-    // console.log(`isUserOnline(friendId): ${isUserOnline(friendId)}`);
-    
-    setFriendSocketConnected(isUserOnline(friendId));
-
-    const handleFriendConnect = ({ userId }) => {
-      // console.log("Friend connect");
-      
-      if (userId === friendId) setFriendSocketConnected(true);
-    };
-    const handleFriendDisconnect = ({ userId }) => {
-      // console.log("Friend disconnect");
-
-      if (userId === friendId) setFriendSocketConnected(false);
-    };
-
-    socket.on(ChatEventEnum.FRIEND_CONNECTED_EVENT, handleFriendConnect);
-    socket.on(ChatEventEnum.FRIEND_DISCONNECT_EVENT, handleFriendDisconnect);
-
-    return () => {
-      socket.off(ChatEventEnum.FRIEND_CONNECTED_EVENT, handleFriendConnect);
-      socket.off(ChatEventEnum.FRIEND_DISCONNECT_EVENT, handleFriendDisconnect);
-    };
-  }, [selectedChat?._id, socket, socketConnected, friendId, isUserOnline]);
-
-  // Load all chat messages
+  // Load messages on chat change
   useEffect(() => {
     if (!selectedChat?._id || !token) return;
 
@@ -72,27 +33,30 @@ const Chat = ({ selectedChat }) => {
       .catch((err) => console.error("Failed to load messages", err));
   }, [selectedChat?._id, token]);
 
+  // Listen for new messages in this chat
   useEffect(() => {
     if (!lastMessage) return;
     if (lastMessage.chat !== selectedChatRef.current?._id) return;
 
-    setMessages((prev) => [...prev, lastMessage]);
+    setMessages((prev) => {
+      if (prev.some((m) => m._id === lastMessage._id)) return prev;
+      return [...prev, lastMessage];
+    });
+  }, [lastMessage]);
 
-  }, [lastMessage, user.id]);
-
-  // Auto-scroll on message update
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Send a message
   const sendMessage = (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || !socket) return;
 
-    const msgObj = { chatId: selectedChat._id, content: message };
-
-    socket.emit(ChatEventEnum.SEND_MESSAGE_EVENT, msgObj);
+    socket.emit(ChatEventEnum.SEND_MESSAGE_EVENT, {
+      chatId: selectedChat._id,
+      content: message,
+    });
 
     // Optimistic UI update
     setMessages((prev) => [
@@ -103,6 +67,8 @@ const Chat = ({ selectedChat }) => {
     setMessage("");
   };
 
+  const friendOnline = isUserOnline(friendId);
+
   return (
     <div className="flex flex-col h-full rounded-2xl overflow-hidden w-full max-w-full sm:max-w-[600px] md:max-w-[700px] lg:max-w-full">
       {/* Header */}
@@ -110,16 +76,11 @@ const Chat = ({ selectedChat }) => {
         <span className="text-sm sm:text-base">
           Chat with{" "}
           <span className="text-gray-800 font-bold">
-            {selectedChat?.participants.find((p) => p._id !== user.id)?.profile?.name ||
-              "Unknown"}
+            {selectedChat?.participants.find((p) => p._id !== user.id)?.profile?.name || "Unknown"}
           </span>
         </span>
-        <span
-          className={`text-xs ${
-            friendSocketConnected ? "text-green-600" : "text-gray-400"
-          }`}
-        >
-          {friendSocketConnected ? "● Online" : "● Offline"}
+        <span className={`text-xs ${friendOnline ? "text-green-600" : "text-gray-400"}`}>
+          {friendOnline ? "● Online" : "● Offline"}
         </span>
       </div>
 
@@ -128,11 +89,7 @@ const Chat = ({ selectedChat }) => {
         {messages.map((msg) => (
           <div
             key={msg._id}
-            className={`flex ${
-              (msg.sender?._id || msg.sender) === user.id
-                ? "justify-end"
-                : "justify-start"
-            }`}
+            className={`flex ${(msg.sender?._id || msg.sender) === user.id ? "justify-end" : "justify-start"}`}
           >
             <div
               className={`max-w-[80%] sm:max-w-[75%] px-3 sm:px-4 py-2 rounded-2xl shadow-sm text-sm break-words ${
@@ -148,11 +105,8 @@ const Chat = ({ selectedChat }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar */}
-      <form
-        className="p-2 sm:p-3 border-t bg-white flex items-center gap-2"
-        onSubmit={sendMessage}
-      >
+      {/* Input */}
+      <form className="p-2 sm:p-3 border-t bg-white flex items-center gap-2" onSubmit={sendMessage}>
         <input
           type="text"
           placeholder="Type a message..."

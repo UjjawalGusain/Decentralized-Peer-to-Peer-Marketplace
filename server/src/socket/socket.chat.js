@@ -110,6 +110,10 @@ const initializeSocketIO = server => {
                       userId: user._id.toString(),
                     }
                   );
+                  io.to(participantId.toString()).emit('friend-online-status', {
+                    userId: user._id.toString(),
+                    online: false,
+                  });
                 }
               }
             }
