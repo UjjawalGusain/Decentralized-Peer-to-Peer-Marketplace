@@ -20,8 +20,10 @@ export default function ProductSection({
         alert("Please log in to message the seller.");
         return;
       }
+      console.log(product);
+      
       const res = await axios.post(
-        `${APIS.CHATS}/create/${product.sellerId}`,
+        `${APIS.CHATS}/create/${product.sellerId?._id}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
