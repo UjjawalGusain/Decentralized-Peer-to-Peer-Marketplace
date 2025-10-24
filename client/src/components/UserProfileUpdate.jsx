@@ -17,12 +17,17 @@ function UserProfileUpdate() {
   const { token, refreshUser, user } = useAuth();
   const navigate = useNavigate();
 
-  if (!user) return <ErrorPage message={"Sorry you have not logged in so you don't have access to this page."}/>;
+  if (!user)
+    return (
+      <ErrorPage message="Sorry, you are not logged in and cannot access this page." />
+    );
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -40,6 +45,7 @@ function UserProfileUpdate() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [savingUPI, setSavingUPI] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -86,10 +92,10 @@ function UserProfileUpdate() {
     );
   }
 
-  async function onSubmit(data) {
+  // ✅ Core function that both Submit and Save UPI use
+  async function updateProfile(data) {
     try {
       setError("");
-      // Parse coordinates string to array
       let coordsStr = data.location.coordinates;
       coordsStr = coordsStr.replace(/^\[|\]$/g, "");
       const parts = coordsStr
@@ -120,19 +126,40 @@ function UserProfileUpdate() {
       });
 
       const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "Profile update failed.");
 
-      if (!response.ok) {
-        setError(result.message || "Profile update failed.");
-      } else {
-        alert("Profile updated!");
-        
-        refreshUser(result?.user?.id);
-        
-        navigate(`/users/${result?.user?.id}`);
-      }
+      return result;
     } catch (err) {
-      setError("Unexpected error. Try again.");
-      console.error("Profile update error:", err);
+      throw err;
+    }
+  }
+
+  async function onSubmit(data) {
+    try {
+      const result = await updateProfile(data);
+      alert("Profile updated!");
+      await refreshUser(result?.user?.id);
+      navigate(`/users/${result?.user?.id}`);
+    } catch (err) {
+      setError(err.message || "Unexpected error. Try again.");
+    }
+  }
+
+  // ✅ This reuses the same update logic for UPI only
+  async function handleSaveUPI() {
+    const currentUpi = watch("upi");
+    if (!currentUpi) return alert("Please enter a valid UPI ID first.");
+
+    setSavingUPI(true);
+    try {
+      const values = getValues();
+      const result = await updateProfile(values);
+      alert("UPI saved successfully!");
+      await refreshUser(result?.user?.id);
+    } catch (err) {
+      alert(err.message || "Failed to save UPI.");
+    } finally {
+      setSavingUPI(false);
     }
   }
 
@@ -141,28 +168,22 @@ function UserProfileUpdate() {
     { label: "Seller", value: "seller" },
   ];
 
-  if (loading) {
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <span className="text-[#FEC010] text-xl font-bold">Loading...</span>
       </div>
     );
-  }
-  if (error) {
+
+  if (error)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-600">
         {error}
       </div>
     );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter flex flex-col items-center px-4 py-12 relative overflow-visible">
-      <div
-        className="absolute top-24 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-[#FEC010] rounded-full opacity-10 z-0"
-        style={{ boxShadow: "0 0 100px 50px rgba(254, 192, 16, 0.6)" }}
-        aria-hidden="true"
-      />
       <main className="w-full max-w-xl mx-auto rounded-xl shadow-lg py-8 px-6 relative z-10 border border-yellow-50">
         <h1 className="text-4xl font-bold text-center text-[#FEC010] mb-8">
           Edit Profile
@@ -178,7 +199,9 @@ function UserProfileUpdate() {
               placeholder="Your name"
             />
             {errors.name && (
-              <span className="text-pink-500 text-xs pl-1">Name is required</span>
+              <span className="text-pink-500 text-xs pl-1">
+                Name is required
+              </span>
             )}
           </section>
 
@@ -196,33 +219,62 @@ function UserProfileUpdate() {
           {/* UPI */}
           <section className="bg-white p-6 rounded-md shadow-sm">
             <SectionTitle>UPI ID</SectionTitle>
-            <input
-              {...register("upi")}
-              type="text"
-              className="w-full px-4 py-2 rounded-md border border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition bg-white"
-              placeholder="Enter your UPI ID"
-            />
+            <div className="flex gap-3 items-center">
+              <input
+                {...register("upi")}
+                type="text"
+                className="flex-1 px-4 py-2 rounded-md border border-yellow-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-100 transition bg-white"
+                placeholder="Enter your UPI ID"
+              />
+              <button
+                type="button"
+                onClick={handleSaveUPI}
+                disabled={savingUPI}
+                className="px-4 py-2 bg-[#FEC010] font-semibold rounded-full shadow hover:scale-105 transition-transform"
+              >
+                {savingUPI ? "Saving..." : "Save UPI"}
+              </button>
+            </div>
           </section>
 
           {/* Role */}
           <section className="bg-white p-6 rounded-md shadow-sm">
             <SectionTitle>Role</SectionTitle>
             <div className="flex gap-6 mt-2">
-              {roleOptions.map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex items-center text-lg text-gray-800 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    {...register("roles")}
-                    value={opt.value}
-                    className="mr-2 w-5 h-5 accent-[#FEC010] rounded focus:ring-2 focus:ring-yellow-300"
-                  />
-                  {opt.label}
-                </label>
-              ))}
+              {roleOptions.map((opt) => {
+                const isSellerOption = opt.value === "seller";
+                const hasUPI = Boolean(user?.upi);
+                const disabled = isSellerOption && !hasUPI;
+
+                return (
+                  <label
+                    key={opt.value}
+                    className={`flex items-center text-lg text-gray-800 ${
+                      disabled
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      {...register("roles")}
+                      value={opt.value}
+                      disabled={disabled}
+                      className="mr-2 w-5 h-5 accent-[#FEC010] rounded focus:ring-2 focus:ring-yellow-300"
+                    />
+                    {opt.label}
+                  </label>
+                );
+              })}
             </div>
+
+            {!user?.upi && (
+              <p className="text-sm text-gray-500 mt-3 italic">
+                Add and save a{" "}
+                <span className="font-medium text-yellow-600">UPI ID</span> first
+                to unlock the Seller role.
+              </p>
+            )}
           </section>
 
           {/* Location */}
@@ -259,7 +311,11 @@ function UserProfileUpdate() {
 
           {/* Submit */}
           <div className="flex justify-center mt-7">
-            <Button label={"Update Profile"} type="submit" disabled={isSubmitting} />
+            <Button
+              label={"Update Profile"}
+              type="submit"
+              disabled={isSubmitting}
+            />
           </div>
         </form>
       </main>

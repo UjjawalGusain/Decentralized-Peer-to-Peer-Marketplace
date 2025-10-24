@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Chat = require('../models/Chats.model');
 const User = require('../models/Users.models');
-const { emitSocketEvent } = require('../socket/socket.chat');
 const { ChatEventEnum } = require('../constants');
 
 const chatCommonAggregation = () => [
@@ -122,13 +121,6 @@ class ChatController {
 
       payload?.participants?.forEach((participant) => {
         if (participant._id.toString() === req.user.userId.toString()) return;
-
-        emitSocketEvent(
-          req,
-          participant._id.toString(),
-          ChatEventEnum.NEW_CHAT_EVENT,
-          payload
-        );
       });
 
 

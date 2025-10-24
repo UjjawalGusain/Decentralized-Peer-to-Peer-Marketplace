@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
         trim: true,
         validate: {
           validator: function (v) {
+            if (!v) return true; // skip validation if empty
             return /^[6-9]\d{9}$/.test(v);
           },
           message: props => `${props.value} is not a valid phone number!`,
@@ -39,7 +40,7 @@ const userSchema = new mongoose.Schema(
     fund_account_id: { type: String },
     fund_account_active: { type: Boolean, default: false },
     fund_contact_id: { type: String, unique: true },
-    upi: {type: String, unique: true},
+    upi: { type: String, unique: true },
     roles: {
       type: [String],
       enum: ['buyer', 'seller'],
